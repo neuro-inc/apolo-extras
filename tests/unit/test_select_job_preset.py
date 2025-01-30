@@ -35,6 +35,7 @@ def test_cheapest_preset_is_selected(mock_client: MockApoloClient) -> None:
 def preset() -> str:
     return "cheap"
 
+
 def test_user_selection_is_respected(mock_client: MockApoloClient, preset: str) -> None:
     mock_client.presets.update(FAKE_PRESETS)
     selected_preset = select_job_preset(
