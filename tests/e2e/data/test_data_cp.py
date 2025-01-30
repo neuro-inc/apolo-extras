@@ -135,7 +135,9 @@ def tempdir_fixture() -> Iterator[str]:
 
 @pytest.mark.xfail(strict=False)  # TODO: remove when platform stabilizes
 @pytest.mark.skipif(sys.platform == "win32", reason="tools don't work on Windows")
-def test_data_copy(data_copy_config: CopyTestConfig, tempdir_fixture: str, disk: str) -> None:
+def test_data_copy(
+    data_copy_config: CopyTestConfig, tempdir_fixture: str, disk: str
+) -> None:
     data_copy_config.source.patch_tempdir(tempdir_fixture)
     data_copy_config.source.patch_disk(disk)
     data_copy_config.destination.patch_tempdir(tempdir_fixture)
