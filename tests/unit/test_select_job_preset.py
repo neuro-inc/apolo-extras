@@ -29,10 +29,9 @@ def test_cheapest_preset_is_selected(mock_client: MockApoloClient) -> None:
     assert selected_preset == "cheap"
 
 
-# HACK to fix this bug https://github.com/TvoroG/pytest-lazy-fixture/issues/65
-@pytest.fixture()
-def preset() -> str:
-    return "cheap"
+@pytest.fixture(params=["bad", "cheap_scheduled"])
+def preset(request) -> str:
+    return request.param
 
 
 def test_user_selection_is_respected(mock_client: MockApoloClient, preset: str) -> None:
