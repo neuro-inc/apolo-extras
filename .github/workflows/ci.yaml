@@ -50,9 +50,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONIOENCODING: utf-8
-      NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1" # ${{ secrets.NEURO_STAGING_URL }}
+      NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1"
       APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
-      # APOLO_TOKEN: ${{ secrets.APOLO_DEV_TOKEN }}
       APOLO_CLUSTER: default
       APOLO_PROJECT: apolo-extras
       APOLO_EXTRAS_PRESET: cpu-small
@@ -174,7 +173,6 @@ jobs:
         env:
           NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1"
           APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
-          # APOLO_TOKEN: #${{ secrets.APOLO_DEV_TOKEN }}
           APOLO_CLUSTER: default
           APOLO_PROJECT: apolo-extras
           APOLO_EXTRAS_PRESET: cpu-small
