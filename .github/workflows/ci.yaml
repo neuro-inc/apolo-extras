@@ -178,7 +178,7 @@ jobs:
           APOLO_EXTRAS_PRESET: cpu-small
           AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
         run: |
-          apolo config login-with-token ${{ env.APOLO_TOKEN }} ${{ env.NEURO_STAGING_URL }}
+          apolo config login-with-token ${{ env.NEURO_TOKEN }} ${{ env.NEURO_STAGING_URL }}
           apolo config switch-cluster ${{ env.APOLO_CLUSTER }}
           apolo config switch-project ${{ env.APOLO_PROJECT }}
           apolo --color=no config show
