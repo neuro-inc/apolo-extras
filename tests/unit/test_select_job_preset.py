@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import Iterable
 
 import pytest
 from apolo_sdk import Preset
