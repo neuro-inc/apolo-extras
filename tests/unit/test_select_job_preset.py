@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from apolo_sdk import Preset
@@ -30,7 +31,7 @@ def test_cheapest_preset_is_selected(mock_client: MockApoloClient) -> None:
 
 
 @pytest.fixture(params=["bad", "cheap_scheduled"])
-def preset(request) -> str:
+def preset(request: Any) -> str:
     return request.param
 
 

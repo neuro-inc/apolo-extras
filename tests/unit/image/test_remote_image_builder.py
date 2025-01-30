@@ -61,7 +61,7 @@ async def test_image_builder__min_parameters(
         "--life-span=4h",
         "--schedule-timeout=20m",
         "--project=myproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/context:/kaniko_context:rw",  # noqa: E501
         "--env=container=docker",
@@ -142,7 +142,7 @@ async def test_image_builder__full_parameters(
         "--preset=custom-preset",
         "--tag=tag1",
         "--tag=tag2",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
         "--volume=storage:somevol:/mnt/vol1",
         "--volume=storage:/someproject2/somevol2:/mnt/vol2",
         "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
@@ -255,7 +255,7 @@ async def test_image_builder__custom_project(
         "--life-span=4h",
         "--schedule-timeout=20m",
         "--project=otherproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",
+        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/otherproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/otherproject/.builds/mocked-uuid-4/context:/kaniko_context:rw",  # noqa: E501
         "--env=container=docker",
@@ -264,9 +264,9 @@ async def test_image_builder__custom_project(
     assert start_build_kaniko_args == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
-        "--destination=registry.mycluster.noexists/NO_ORG/otherproject/targetimage:latest",
+        "--destination=registry.mycluster.noexists/NO_ORG/otherproject/targetimage:latest",  # noqa: E501
         "--cache=true",
-        "--cache-repo=registry.mycluster.noexists/NO_ORG/otherproject/layer-cache/cache",
+        "--cache-repo=registry.mycluster.noexists/NO_ORG/otherproject/layer-cache/cache",  # noqa: E501
         "--verbosity=info",
         "--image-fs-extract-retry=1",
         "--push-retry=3",
@@ -317,7 +317,7 @@ async def test_image_builder__storage_context(
         "--life-span=4h",
         "--schedule-timeout=20m",
         "--project=myproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
         "--volume=storage://mycluster/NO_ORG/myproject/context:/kaniko_context:rw",
         "--env=container=docker",
