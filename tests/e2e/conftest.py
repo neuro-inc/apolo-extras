@@ -46,7 +46,7 @@ TEST_DATA_COPY_CLOUD_TO_PLATFORM = True
 TEST_DATA_COPY_PLATFORM_TO_CLOUD = True
 
 CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
-    "gs": "gs://mlops-ci-e2e/assets/data",
+    "gs": "gs://mlops-ci-e2e-tests/assets/data",
     # "s3": "s3://because-clear-taken-cotton/assets/data",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/assets/data",  # noqa: E501
     "http": "http://because-clear-taken-cotton.s3.amazonaws.com/assets/data",
@@ -55,7 +55,7 @@ CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
 
 CLOUD_DESTINATION_PREFIXES: Dict[str, str] = {
     # "s3": "s3://because-clear-taken-cotton/data_cp",
-    "gs": "gs://mlops-ci-e2e/data_cp",
+    "gs": "gs://mlops-ci-e2e-tests/data_cp",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/data_cp",  # noqa: E501
     "http": "http://because-clear-taken-cotton.s3.amazonaws.com/data_cp",
     "https": "https://because-clear-taken-cotton.s3.amazonaws.com/data_cp",
@@ -260,7 +260,7 @@ def args_data_cp_from_cloud(cli_runner: CLIRunner) -> Callable[..., List[str]]:
                 args.extend(
                     [
                         "-v",
-                        "secret:neuro-extras-gcp:/gcp-creds.txt",
+                        "secret:apolo-extras-gcp:/gcp-creds.txt",
                         "-e",
                         "GOOGLE_APPLICATION_CREDENTIALS=/gcp-creds.txt",
                     ]

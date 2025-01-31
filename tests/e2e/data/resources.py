@@ -255,7 +255,7 @@ class CopyTestConfig:
         if "gs" in schemas:
             extra_args += [
                 "-v",
-                "secret:neuro-extras-gcp:/gcp-creds.txt",
+                "secret:apolo-extras-gcp:/gcp-creds.txt",
                 "-e",
                 "GOOGLE_APPLICATION_CREDENTIALS=/gcp-creds.txt",
             ]
