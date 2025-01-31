@@ -15,6 +15,10 @@ lint: format
 format:
 	pre-commit run --all-files --show-diff-on-failure
 
+.PHONY: prepare-e2e-test
+prepare-e2e-test:
+	. tests/e2e/data/prepare.sh
+
 .PHONY: test_e2e
 test_e2e:
 	pytest -n $(PYTEST_PARALLEL) $(PYTEST_FLAGS) -m "(not serial) and (not smoke_only)" \

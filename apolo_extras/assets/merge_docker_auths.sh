@@ -14,7 +14,7 @@ then
     fi
     for auth in ${extra_auths}; do
         key="${auth%%=*}"
-        value="${auth#*=}"
+        value=$(printenv $key)
         if [ -f "${value}" ]; then
             # ENV var points to the file
             jq < ${value} > /dev/null 2>&1 && res=`echo $res | cat - ${value} | jq -sc 'reduce .[] as $item ({}; . * $item)'`

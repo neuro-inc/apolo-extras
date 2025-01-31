@@ -50,10 +50,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PYTHONIOENCODING: utf-8
-      NEURO_STAGING_URL: ${{ secrets.NEURO_STAGING_URL }}
-      APOLO_TOKEN: ${{ secrets.NEURO_TOKEN }}
+      NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1"
+      APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
       APOLO_CLUSTER: default
-      APOLO_PROJECT: e2e-tests
+      APOLO_PROJECT: apolo-extras
       APOLO_EXTRAS_PRESET: cpu-small
       # Note: ${{ github.sha }} not working, see https://github.com/actions/checkout/issues/299
       SHA: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -97,6 +97,11 @@ jobs:
         run: |
           docker push ghcr.io/neuro-inc/apolo-extras:$SHA
 
+      - name: Prepare volumes and disks
+        shell: bash
+        run: |
+          make prepare-e2e-test
+
   test:
     name: Run tests
     needs: [pretest]
@@ -130,7 +135,7 @@ jobs:
       - name: Authorize GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.E2E_COOKIECUTTER_GCP_SA_KEY }}
+          credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
@@ -171,10 +176,10 @@ jobs:
 
       - name: Configure environment
         env:
-          NEURO_STAGING_URL: ${{ secrets.NEURO_STAGING_URL }}
-          APOLO_TOKEN: ${{ secrets.NEURO_TOKEN }}
+          NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1"
+          APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
           APOLO_CLUSTER: default
-          APOLO_PROJECT: e2e-tests
+          APOLO_PROJECT: apolo-extras
           APOLO_EXTRAS_PRESET: cpu-small
           AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
         run: |
