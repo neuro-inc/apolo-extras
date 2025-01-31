@@ -98,8 +98,6 @@ jobs:
           docker push ghcr.io/neuro-inc/apolo-extras:$SHA
 
       - name: Prepare volumes and disks
-        if: |
-          github.ref_type == 'branch' && github.ref_name == 'master'
         shell: bash
         run: |
           make prepare-e2e-test
