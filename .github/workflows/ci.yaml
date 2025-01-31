@@ -97,6 +97,13 @@ jobs:
         run: |
           docker push ghcr.io/neuro-inc/apolo-extras:$SHA
 
+      - name: Prepare volumes and disks
+        if: |
+          github.ref_type == 'branch' && github.ref_name == 'master'
+        shell: bash
+        run: |
+          make prepare-e2e-test
+
   test:
     name: Run tests
     needs: [pretest]
@@ -186,12 +193,6 @@ jobs:
         uses: joerick/pr-labels-action@v1.0.9
         id: pr_labels
 
-      - name: Prepare volumes and disks
-        if: |
-          github.ref_type == 'branch' && github.ref_name == 'master'
-        shell: bash
-        run: |
-          make prepare-e2e-test
       - name: Run all tests
         if: |
           github.ref_type == 'branch' && github.ref_name == 'master'
