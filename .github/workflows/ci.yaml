@@ -130,7 +130,7 @@ jobs:
       - name: Authorize GCP
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }}
+          credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
@@ -186,6 +186,12 @@ jobs:
         uses: joerick/pr-labels-action@v1.0.9
         id: pr_labels
 
+      - name: Prepare volumes and disks
+        if: |
+          github.ref_type == 'branch' && github.ref_name == 'master'
+        shell: bash
+        run: |
+          make prepare-e2e-test
       - name: Run all tests
         if: |
           github.ref_type == 'branch' && github.ref_name == 'master'

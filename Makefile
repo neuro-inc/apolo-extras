@@ -71,7 +71,7 @@ test_image:
 		tests/e2e/test_image.py
 
 .PHONY: test
-test: test_unit prepare-e2e-test test_e2e
+test: test_unit test_e2e
 
 .PHONY: test_unit
 test_unit:
