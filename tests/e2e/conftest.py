@@ -66,7 +66,7 @@ PLATFORM_SOURCE_PREFIXES: Dict[str, str] = {
     # apolo cp -rT tests/assets/data storage:e2e/assets/data
     "storage": "storage:e2e/assets/data",
     # apolo disk create --name extras-e2e --timeout-unused 1000d 100M
-    # apolo run -v storage:e2e/assets/data:/storage -v disk:extras-e2e:/disk alpine -- cp -rT /storage /disk/assets/data # noqa: E501
+    # apolo run -v storage:e2e/assets/data:/storage -v disk:extras-e2e:/disk alpine -- sh -c "mkdir -p /disk/assets && cp -rT /storage /disk/assets/data" # noqa: E501
     "disk": f"disk:extras-e2e/assets/data",
 }
 
