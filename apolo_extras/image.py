@@ -362,7 +362,12 @@ async def _build_image(
             client, image_uri_str, project_name, scheme="image"
         )
     async with get_platform_client(cluster=cluster) as client:
-        image_uri = client.parse.str_to_uri(image_uri_str, project_name=project_name)
+        try:
+            image_uri = str(
+                client.parse.str_to_uri(image_uri_str, project_name=project_name)
+            )
+        except ValueError:
+            image_uri = image_uri_str
         image = await _parse_platform_image(str(image_uri))
         context_uri = client.parse.str_to_uri(
             context,

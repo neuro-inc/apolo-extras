@@ -10,7 +10,6 @@ from typing import Iterable, Iterator, List, Optional
 import apolo_sdk
 import pytest
 from apolo_sdk import Client
-from pytest_lazyfixture import lazy_fixture  # type: ignore
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from ..conftest import (
@@ -135,33 +134,29 @@ def tempdir_fixture() -> Iterator[str]:
 
 
 @pytest.mark.xfail(strict=False)  # TODO: remove when platform stabilizes
-@pytest.mark.parametrize(
-    argnames="config", argvalues=[lazy_fixture("data_copy_config")]
-)
 @pytest.mark.skipif(sys.platform == "win32", reason="tools don't work on Windows")
-def test_data_copy(config: CopyTestConfig, tempdir_fixture: str, disk: str) -> None:
-    config.source.patch_tempdir(tempdir_fixture)
-    config.source.patch_disk(disk)
-    config.destination.patch_tempdir(tempdir_fixture)
-    config.destination.patch_disk(disk)
-    _run_data_copy_test_from_config(config=config)
+def test_data_copy(
+    data_copy_config: CopyTestConfig, tempdir_fixture: str, disk: str
+) -> None:
+    data_copy_config.source.patch_tempdir(tempdir_fixture)
+    data_copy_config.source.patch_disk(disk)
+    data_copy_config.destination.patch_tempdir(tempdir_fixture)
+    data_copy_config.destination.patch_disk(disk)
+    _run_data_copy_test_from_config(config=data_copy_config)
 
 
 @pytest.mark.smoke
 @pytest.mark.smoke_only
 @pytest.mark.xfail(strict=False)  # TODO: remove when platform stabilizes
-@pytest.mark.parametrize(
-    argnames="config", argvalues=[lazy_fixture("data_copy_config_smoke")]
-)
 @pytest.mark.skipif(sys.platform == "win32", reason="tools don't work on Windows")
 def test_data_copy_smoke(
-    config: CopyTestConfig, tempdir_fixture: str, disk: str
+    data_copy_config_smoke: CopyTestConfig, tempdir_fixture: str, disk: str
 ) -> None:
-    config.source.patch_tempdir(tempdir_fixture)
-    config.source.patch_disk(disk)
-    config.destination.patch_tempdir(tempdir_fixture)
-    config.destination.patch_disk(disk)
-    _run_data_copy_test_from_config(config=config)
+    data_copy_config_smoke.source.patch_tempdir(tempdir_fixture)
+    data_copy_config_smoke.source.patch_disk(disk)
+    data_copy_config_smoke.destination.patch_tempdir(tempdir_fixture)
+    data_copy_config_smoke.destination.patch_disk(disk)
+    _run_data_copy_test_from_config(config=data_copy_config_smoke)
 
 
 @retry(stop=stop_after_attempt(5), wait=wait_random_exponential(min=10, max=60))

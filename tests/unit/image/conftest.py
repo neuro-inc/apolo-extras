@@ -41,6 +41,7 @@ def _get_mock_clusters() -> t.Dict[str, apolo_sdk.Cluster]:
             resource_pools={},
             presets=_get_mock_presets(),
             orgs=[],
+            apps=apolo_sdk.AppsConfig(),
         ),
     }
 
