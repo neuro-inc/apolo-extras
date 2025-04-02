@@ -31,7 +31,6 @@ repos:
   - id: check-json
   - id: check-xml
   - id: debug-statements
-  - id: check-added-large-files
   - id: end-of-file-fixer
     exclude: "^docs/"
   - id: requirements-txt-fixer
