@@ -8,6 +8,11 @@ updates:
   open-pull-requests-limit: 10
   reviewers:
     - neuro-inc/mlops
+  groups:
+    sdk-cli:
+      patterns:
+        - "apolo-sdk"
+        - "apolo-cli"
 - package-ecosystem: docker
   directory: "/"
   schedule:
