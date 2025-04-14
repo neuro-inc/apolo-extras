@@ -69,7 +69,7 @@ repos:
     - -ignore
     - 'SC2193:'
 - repo: https://github.com/sirosen/check-jsonschema
-  rev: 0.32.1
+  rev: 0.33.0
   hooks:
   - id: check-github-actions
 ci:
