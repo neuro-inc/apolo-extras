@@ -27,7 +27,6 @@ apolo-extras [OPTIONS] COMMAND [ARGS]...
 | [_apolo-extras data_](cli.md#apolo-extras-data) | Data transfer operations. |
 | [_apolo-extras image_](cli.md#apolo-extras-image) | Job container image operations. |
 | [_apolo-extras k8s_](cli.md#apolo-extras-k8s) | Cluster Kubernetes operations. |
-| [_apolo-extras seldon_](cli.md#apolo-extras-seldon) | Seldon deployment operations. |
 
 **Commands:**
 
@@ -296,61 +295,6 @@ apolo-extras k8s generate-secret [OPTIONS]
 | Name | Description |
 | :--- | :--- |
 | _--name TEXT_ |  |
-| _--help_ | Show this message and exit. |
-
-### apolo-extras seldon
-
-Seldon deployment operations.
-
-**Usage:**
-
-```bash
-apolo-extras seldon [OPTIONS] COMMAND [ARGS]...
-```
-
-**Options:**
-
-| Name | Description |
-| :--- | :--- |
-| _--help_ | Show this message and exit. |
-
-**Commands:**
-
-| Usage | Description |
-| :--- | :--- |
-| [_apolo-extras seldon generate-deployment_](cli.md#apolo-extras-seldon-generate-deployment) |  |
-| [_apolo-extras seldon init-package_](cli.md#apolo-extras-seldon-init-package) |  |
-
-#### apolo-extras seldon generate-deployment
-
-**Usage:**
-
-```bash
-apolo-extras seldon generate-deployment [OPTIONS] MODEL_IMAGE_URI
-                                               MODEL_STORAGE_URI
-```
-
-**Options:**
-
-| Name | Description |
-| :--- | :--- |
-| _--name TEXT_ |  |
-| _--apolo-secret TEXT_ |  |
-| _--registry-secret TEXT_ |  |
-| _--help_ | Show this message and exit. |
-
-#### apolo-extras seldon init-package
-
-**Usage:**
-
-```bash
-apolo-extras seldon init-package [OPTIONS] [PATH]
-```
-
-**Options:**
-
-| Name | Description |
-| :--- | :--- |
 | _--help_ | Show this message and exit. |
 
 ### apolo-extras init-aliases

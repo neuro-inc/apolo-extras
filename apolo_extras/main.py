@@ -9,7 +9,6 @@ from .config import save_registry_auth  # noqa
 from .data import data_cp, data_transfer  # noqa
 from .image import image_build, image_transfer  # noqa
 from .k8s import generate_k8s_registry_secret, generate_k8s_secret  # noqa
-from .seldon import generate_seldon_deployment, seldon_init_package  # noqa
 
 
 logger = logging.getLogger(__name__)
@@ -56,10 +55,6 @@ def init_aliases() -> None:
             "Build docker image using local Docker daemon. "
             "Hit `apolo-extras image local-build --help` for more info."
         ),
-    }
-    config["alias"]["seldon-init-package"] = {
-        "exec": "apolo-extras seldon init-package",
-        "args": "URI_OR_PATH",
     }
     config["alias"]["image-transfer"] = {
         "exec": "apolo-extras image transfer",
