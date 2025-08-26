@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 from apolo_sdk import Preset
+from apolo_sdk._server_cfg import NvidiaGPUPreset
 
 from apolo_extras.utils import select_job_preset
 
@@ -25,7 +26,7 @@ FAKE_PRESETS = {
 def test_cheapest_preset_is_selected(mock_client: MockApoloClient) -> None:
     mock_client.presets.update(FAKE_PRESETS)
     selected_preset = select_job_preset(
-        preset=None, client=mock_client, min_mem=4096, min_cpu=2
+        preset=None, client=mock_client, min_mem_mb=4096, min_cpu=2
     )
     assert selected_preset == "cheap"
 
@@ -38,7 +39,7 @@ def preset(request: Any) -> str:
 def test_user_selection_is_respected(mock_client: MockApoloClient, preset: str) -> None:
     mock_client.presets.update(FAKE_PRESETS)
     selected_preset = select_job_preset(
-        preset=preset, client=mock_client, min_mem=4096, min_cpu=2
+        preset=preset, client=mock_client, min_mem_mb=4096, min_cpu=2
     )
     assert selected_preset == preset
 
@@ -46,10 +47,15 @@ def test_user_selection_is_respected(mock_client: MockApoloClient, preset: str) 
 def test_when_nothing_fits_first_preset_is_used(mock_client: MockApoloClient) -> None:
     presets = {
         "bad": Preset(cpu=1, memory=9999, credits_per_hour=Decimal("5")),
-        "gpu": Preset(cpu=4, memory=9999, credits_per_hour=Decimal("15"), nvidia_gpu=1),
+        "gpu": Preset(
+            cpu=4,
+            memory=9999,
+            credits_per_hour=Decimal("15"),
+            nvidia_gpu=NvidiaGPUPreset(count=1, model="A100", memory=8192),
+        ),
     }
     selected_preset = select_job_preset(
-        preset=None, client=mock_client, min_mem=4096, min_cpu=2
+        preset=None, client=mock_client, min_mem_mb=4096, min_cpu=2
     )
     mock_client.presets.update(presets)
     assert selected_preset is None

@@ -73,7 +73,7 @@ async def get_platform_client(
 
 
 def select_job_preset(
-    preset: Optional[str], client: Client, min_cpu: float = 2, min_mem: int = 4096
+    preset: Optional[str], client: Client, min_cpu: float = 2, min_mem_mb: int = 4096
 ) -> Optional[str]:
     """
     Try to automatically select the best available preset for a task.
@@ -88,13 +88,13 @@ def select_job_preset(
         # see https://github.com/neuro-inc/neuro-extras/issues/488
         if (
             cluster_preset_info.cpu >= min_cpu
-            and cluster_preset_info.memory_mb >= min_mem
+            and cluster_preset_info.memory * 1e6 >= min_mem_mb
             and not cluster_preset_info.scheduler_enabled
         ):
             good_presets.append((cluster_preset_name, cluster_preset_info))
             good_presets_names.append(cluster_preset_name)
     # Sort presets by cost - memory - cpu
-    good_presets.sort(key=lambda p: (p[1].credits_per_hour, p[1].memory_mb, p[1].cpu))
+    good_presets.sort(key=lambda p: (p[1].credits_per_hour, p[1].memory, p[1].cpu))
 
     if preset is None:
         if len(good_presets) > 0:

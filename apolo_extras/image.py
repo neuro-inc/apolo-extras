@@ -390,7 +390,7 @@ async def _build_image(
             preset=preset,
             client=client,
             min_cpu=MIN_BUILD_PRESET_CPU,
-            min_mem=MIN_BUILD_PRESET_MEM,
+            min_mem_mb=MIN_BUILD_PRESET_MEM,
         )
 
         builder_cls = ImageBuilder.get(local=local)
