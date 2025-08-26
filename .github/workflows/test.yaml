@@ -44,7 +44,6 @@ jobs:
 
   pretest:
     name: Prepare for tests
-    needs: [lint]
     runs-on: ubuntu-latest
     env:
       PYTHONIOENCODING: utf-8
@@ -270,3 +269,16 @@ jobs:
         run: |
           export APOLO_EXTRAS_IMAGE=ghcr.io/neuro-inc/apolo-extras:$SHA
           make test_image
+
+  check:
+    name: Check
+    needs:
+      - lint
+      - test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
