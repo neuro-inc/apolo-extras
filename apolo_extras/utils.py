@@ -90,6 +90,10 @@ def select_job_preset(
             cluster_preset_info.cpu >= min_cpu
             and cluster_preset_info.memory * 1e6 >= min_mem_mb
             and not cluster_preset_info.scheduler_enabled
+            and not cluster_preset_info.nvidia_gpu
+            and not cluster_preset_info.amd_gpu
+            and not cluster_preset_info.intel_gpu
+            and not cluster_preset_info.tpu
         ):
             good_presets.append((cluster_preset_name, cluster_preset_info))
             good_presets_names.append(cluster_preset_name)
