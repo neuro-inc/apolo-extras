@@ -84,6 +84,10 @@ jobs:
         with:
           app-id: 87198
           private-key: ${{ secrets.NEURO_GH_BOT_PRIVATE_KEY }}
+          owner: neuro-inc
+          repositories: |
+            apolo-extras
+          permission-packages: write
 
       - name: Login to ghcr.io
         run: echo "${{ steps.neu-ro-github-bot-app-token.outputs.token }}" | docker login ghcr.io -u x-access-token --password-stdin
