@@ -33,7 +33,7 @@ class ArchiveType(int, Flag):  # type: ignore
     ZIP = auto()
     TAR = TAR_PLAIN | TAR_GZ | TAR_BZ
     SUPPORTED = TAR | GZ | ZIP
-    UNSUPPORTED = ~(SUPPORTED)
+    UNSUPPORTED = ~(SUPPORTED)  # type:ignore
 
     @staticmethod
     def get_extensions_for_type(type: "ArchiveType") -> List[str]:
@@ -102,7 +102,7 @@ class DataUrlType(int, Flag):  # type: ignore
     STORAGE = auto()
     DISK = auto()
     PLATFORM = STORAGE | DISK
-    COPY_UNSUPPORTED = ~(LOCAL_FS | CLOUD | PLATFORM)
+    COPY_UNSUPPORTED = ~(LOCAL_FS | CLOUD | PLATFORM)  # type:ignore
     COPY_SUPPORTED = ~COPY_UNSUPPORTED
 
     def __eq__(self, other: Any) -> bool:

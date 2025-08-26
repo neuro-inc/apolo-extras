@@ -22,7 +22,9 @@ def _get_mock_presets() -> t.Dict[str, apolo_sdk.Preset]:
             credits_per_hour=Decimal(1),
             cpu=5,
             memory=3 * 1024 * 1024,
-            nvidia_gpu=1,
+            nvidia_gpu=apolo_sdk._server_cfg.NvidiaGPUPreset(
+                count=1, model="A100", memory=8192
+            ),
         ),
     }
 
