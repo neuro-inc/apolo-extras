@@ -6,6 +6,10 @@ on:
     branches: [master]
   workflow_call: {}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   lint:
     name: Linter
@@ -79,18 +83,12 @@ jobs:
           apolo config switch-project ${{ env.APOLO_PROJECT }}
           apolo --color=no config show
 
-      - uses: actions/create-github-app-token@v2
-        id: neu-ro-github-bot-app-token
-        with:
-          app-id: 87198
-          private-key: ${{ secrets.NEURO_GH_BOT_PRIVATE_KEY }}
-          owner: neuro-inc
-          repositories: |
-            apolo-extras
-          permission-packages: write
-
       - name: Login to ghcr.io
-        run: echo "${{ steps.neu-ro-github-bot-app-token.outputs.token }}" | docker login ghcr.io -u x-access-token --password-stdin
+        uses: docker/login-action@v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build test image
         run: |
