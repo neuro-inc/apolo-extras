@@ -78,18 +78,23 @@ jobs:
           apolo config switch-cluster ${{ env.APOLO_CLUSTER }}
           apolo config switch-project ${{ env.APOLO_PROJECT }}
           apolo --color=no config show
-      - name: Login to ghcr.io
-        uses: docker/login-action@v3.5.0
+
+      - uses: actions/create-github-app-token@v2
+        id: neu-ro-github-bot-app-token
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          app-id: ${{ vars.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Login to ghcr.io
+        run: echo "${{ steps.neu-ro-github-bot-app-token.outputs.token }}" | docker login ghcr.io -u x-access-token --password-stdin
+
       - name: Build test image
         run: |
           export REPO_URL=https://github.com/neuro-inc/neuro-extras.git
           export PACKAGE="git+$REPO_URL@$SHA"
           docker build -t ghcr.io/neuro-inc/apolo-extras:$SHA \
             --build-arg APOLO_EXTRAS_PACKAGE=$PACKAGE .
+
       - name: Push test image
         run: |
           docker push ghcr.io/neuro-inc/apolo-extras:$SHA
