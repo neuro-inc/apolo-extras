@@ -14,11 +14,11 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout commit
-        uses: actions/checkout@v4
-      - name: Setup Python 3.9
+        uses: actions/checkout@v5
+      - name: Setup Python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.13"
       - name: Cache PyPI
         uses: actions/cache@v4
         with:
@@ -45,7 +45,7 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Sanity check for tag and version
         run: |
           export VERSION=${{ needs.info.outputs.version }}
@@ -59,7 +59,7 @@ jobs:
       - name: Install python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.13"
       - name: Install dependencies
         run: |
           python -m pip install twine wheel
@@ -73,17 +73,6 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           twine upload dist/*
-      - name: Make neuro dists
-        run: |
-          rm -r dist build
-          sed -i 's/apolo-extras/neuro-extras/g' setup.py
-          python setup.py sdist bdist_wheel
-      - name: PyPI upload
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_NEURO_TOKEN }}
-        run: |
-          twine upload dist/*
 
   dockerhub_deploy:
     name: Release image if needed
@@ -92,11 +81,11 @@ jobs:
     if: github.event_name == 'release'
     steps:
       - name: Checkout commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: "3.13"
       - name: Install dependencies
         run: |
           python -m pip install pip
@@ -117,7 +106,7 @@ jobs:
           docker build -t ghcr.io/neuro-inc/apolo-extras:latest \
             --build-arg APOLO_EXTRAS_PACKAGE=$PACKAGE .
       - name: Login to ghcr.io
-        uses: docker/login-action@v3.4.0
+        uses: docker/login-action@v3.5.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

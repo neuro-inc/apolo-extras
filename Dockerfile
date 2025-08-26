@@ -1,18 +1,16 @@
-FROM python:3.9.7-alpine3.13
+FROM python:3.13.7-alpine3.21
 
-LABEL org.opencontainers.image.source = "https://github.com/neuro-inc/neuro-extras"
+LABEL org.opencontainers.image.source="https://github.com/neuro-inc/neuro-extras"
 
-ENV LANG C.UTF-8
-ENV PYTHONUNBUFFERED 1
+ENV LANG=C.UTF-8
+ENV PYTHONUNBUFFERED=1
 
-ARG CLOUD_SDK_VERSION=347.0.0
+ARG CLOUD_SDK_VERSION=535.0.0
 ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
 
-ENV PATH /google-cloud-sdk/bin:$PATH
+ENV PATH=/google-cloud-sdk/bin:$PATH
 
-# TODO (semendiak): 'gcc g++ libffi-dev' are needed for upstream dependency cffi
-# some of the latest releases (not in our repo) broke installation without those libs as for 27.09.2021
-RUN apk add --no-cache make curl git rsync unrar zip unzip vim wget openssh-client ca-certificates bash gcc g++ libffi-dev
+RUN apk add --no-cache make curl git rsync zip unzip vim wget openssh-client ca-certificates bash
 
 # Install Google Cloud SDK
 RUN wget -q https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${CLOUD_SDK_VERSION}-linux-x86_64.tar.gz && \
@@ -31,17 +29,18 @@ RUN curl -O https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
     chmod 755 /usr/bin/rclone
 
 # Install kubectl
-RUN cd /usr/local/bin && \
-    wget https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl && \
-    chmod +x ./kubectl && \
-    kubectl version --client
+# y.s. (23.08.2025) we seem to not need it anymore, drop later if confirmed
+# RUN cd /usr/local/bin && \
+#     wget https://dl.k8s.io/release/v1.33.4/bin/linux/amd64/kubectl && \
+#     chmod +x ./kubectl && \
+#     kubectl version --client
 
 # package version is to be overloaded with exact version
 ARG APOLO_EXTRAS_PACKAGE=apolo-extras
 
 ENV PATH=/root/.local/bin:$PATH
 
-RUN pip3 install --no-cache-dir -U pip pipx click==8.1.2 # TODO remove click pinned version
+RUN pip3 install --no-cache-dir -U pip pipx
 RUN MULTIDICT_NO_EXTENSIONS=1 YARL_NO_EXTENSIONS=1 pip install --user \
     $APOLO_EXTRAS_PACKAGE && \
     # isolated env since it has conflicts with apolo-cli
