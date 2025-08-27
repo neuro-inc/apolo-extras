@@ -46,19 +46,19 @@ TEST_DATA_COPY_CLOUD_TO_PLATFORM = True
 TEST_DATA_COPY_PLATFORM_TO_CLOUD = True
 
 CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
-    # "gs": "gs://mlops-ci-e2e-tests/assets/data",
+    # "gs": "gs://mlops-ci-e2e-tests/assets/data", # disabled, since we cannot easily test it via internal network   # noqa: E501
     "s3": "s3://apolo-extras-test-assets/assets/data",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/assets/data",  # noqa: E501
-    "http": "http://because-clear-taken-cotton.s3.amazonaws.com/assets/data",
-    "https": "https://because-clear-taken-cotton.s3.amazonaws.com/assets/data",
+    "http": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
+    "https": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
 }
 
 CLOUD_DESTINATION_PREFIXES: Dict[str, str] = {
-    # "s3": "s3://because-clear-taken-cotton/data_cp",
-    "gs": "gs://mlops-ci-e2e-tests/data_cp",
+    # "gs": "gs://mlops-ci-e2e-tests/data_cp",
+    "s3": "s3://apolo-extras-test-assets/assets/data_cp",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/data_cp",  # noqa: E501
-    "http": "http://because-clear-taken-cotton.s3.amazonaws.com/data_cp",
-    "https": "https://because-clear-taken-cotton.s3.amazonaws.com/data_cp",
+    "http": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
+    "https": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
 }
 
 PLATFORM_SOURCE_PREFIXES: Dict[str, str] = {
@@ -269,7 +269,7 @@ def args_data_cp_from_cloud(cli_runner: CLIRunner) -> Callable[..., List[str]]:
                 args.extend(
                     [
                         "-v",
-                        "secret:neuro-extras-aws:/aws-creds.txt",
+                        "secret:apolo-extras-aws:/aws-creds.txt",
                         "-e",
                         "AWS_CONFIG_FILE=/aws-creds.txt",
                     ]
