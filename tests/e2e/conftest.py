@@ -46,8 +46,8 @@ TEST_DATA_COPY_CLOUD_TO_PLATFORM = True
 TEST_DATA_COPY_PLATFORM_TO_CLOUD = True
 
 CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
-    "gs": "gs://mlops-ci-e2e-tests/assets/data",
-    # "s3": "s3://because-clear-taken-cotton/assets/data",
+    # "gs": "gs://mlops-ci-e2e-tests/assets/data",
+    "s3": "s3://apolo-extras-test-assets/assets/data",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/assets/data",  # noqa: E501
     "http": "http://because-clear-taken-cotton.s3.amazonaws.com/assets/data",
     "https": "https://because-clear-taken-cotton.s3.amazonaws.com/assets/data",

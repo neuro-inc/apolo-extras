@@ -147,8 +147,8 @@ jobs:
       - name: Configure AWS access
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.E2E_COOKIECUTTER_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.E2E_COOKIECUTTER_AWS_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Install python ${{ matrix.python-version }}
