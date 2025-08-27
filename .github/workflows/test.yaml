@@ -6,6 +6,10 @@ on:
     branches: [master]
   workflow_call: {}
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   lint:
     name: Linter
@@ -78,18 +82,21 @@ jobs:
           apolo config switch-cluster ${{ env.APOLO_CLUSTER }}
           apolo config switch-project ${{ env.APOLO_PROJECT }}
           apolo --color=no config show
+
       - name: Login to ghcr.io
         uses: docker/login-action@v3.5.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build test image
         run: |
           export REPO_URL=https://github.com/neuro-inc/neuro-extras.git
           export PACKAGE="git+$REPO_URL@$SHA"
           docker build -t ghcr.io/neuro-inc/apolo-extras:$SHA \
             --build-arg APOLO_EXTRAS_PACKAGE=$PACKAGE .
+
       - name: Push test image
         run: |
           docker push ghcr.io/neuro-inc/apolo-extras:$SHA
@@ -140,8 +147,8 @@ jobs:
       - name: Configure AWS access
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.E2E_COOKIECUTTER_AWS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.E2E_COOKIECUTTER_AWS_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Install python ${{ matrix.python-version }}

@@ -264,7 +264,7 @@ class CopyTestConfig:
         if "s3" in schemas:
             extra_args += [
                 "-v",
-                "secret:neuro-extras-aws:/aws-creds.txt",
+                "secret:apolo-extras-aws:/aws-creds.txt",
                 "-e",
                 "AWS_CONFIG_FILE=/aws-creds.txt",
             ]
