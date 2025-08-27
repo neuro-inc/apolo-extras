@@ -4,6 +4,16 @@
 
 [comment]: # (towncrier release notes start)
 
+apolo-extras v25.8.0 (2025-08-27)
+=================================
+
+
+Misc
+----
+
+- [#699](https://github.com/neuromation/neuro-extras/issues/699)
+
+
 apolo-extras v24.9.0 (2024-10-01)
 =================================
 

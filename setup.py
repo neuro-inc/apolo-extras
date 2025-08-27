@@ -16,14 +16,14 @@ with open("apolo_extras/version.py") as f:
 setup(
     name=DIST_NAME,
     version=version,
-    python_requires=">=3.9.0",
+    python_requires=">=3.10.0",
     url="https://github.com/neuro-inc/neuro-extras",
     packages=find_packages(),
     install_requires=[
-        "apolo-cli>=24.12.3",
+        "apolo-cli>=25.8.1",
         "click>=8.0",
         "toml>=0.10.0",
-        "pyyaml>=3.0",
+        "pyyaml>=6.0",
     ],
     entry_points={
         "console_scripts": [f"{DIST_NAME}=apolo_extras:main"],
