@@ -142,7 +142,7 @@ jobs:
           credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
 
       - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
 
       - name: Configure AWS access
         uses: aws-actions/configure-aws-credentials@v4
