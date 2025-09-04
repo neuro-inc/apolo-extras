@@ -16,7 +16,7 @@ with open("apolo_extras/version.py") as f:
 setup(
     name=DIST_NAME,
     version=version,
-    python_requires=">=3.10.0",
+    python_requires=">=3.9.0",
     url="https://github.com/neuro-inc/neuro-extras",
     packages=find_packages(),
     install_requires=[
