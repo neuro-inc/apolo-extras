@@ -129,6 +129,12 @@ jobs:
     timeout-minutes: 90
     env:
       PYTHONIOENCODING: utf-8
+      AWS_APOLO_EXTRAS_TEST_USER_KEY_ID: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_KEY_ID }}
+      AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY }}
+      APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
+      # AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+      DOCKERHUB_CI_USERNAME: ${{ secrets.DOCKERHUB_CI_USERNAME }}
+      DOCKERHUB_CI_TOKEN: ${{ secrets.DOCKERHUB_CI_TOKEN }}
 
     steps:
       - name: Checkout commit
@@ -142,14 +148,14 @@ jobs:
       #     credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
       # GCP test are disabled since we cannot easily test it via internal network
 
-      - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
+      # - name: Setup gcloud
+      #   uses: google-github-actions/setup-gcloud@v2
 
       - name: Configure AWS access
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY }}
+          aws-access-key-id: ${{ env.AWS_APOLO_EXTRAS_TEST_USER_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_APOLO_EXTRAS_TEST_USER_ACCESS_KEY }}
           aws-region: us-east-1
 
       - name: Install python ${{ matrix.python-version }}
@@ -182,11 +188,10 @@ jobs:
       - name: Configure environment
         env:
           NEURO_STAGING_URL: "https://api.dev.apolo.us/api/v1"
-          APOLO_TOKEN: ${{ secrets.CLIENT_TEST_E2E_USER_NAME }}
+          APOLO_TOKEN: ${{ env.APOLO_TOKEN }}
           APOLO_CLUSTER: default
           APOLO_PROJECT: apolo-extras
           APOLO_EXTRAS_PRESET: cpu-small
-          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
         run: |
           apolo config login-with-token ${{ env.APOLO_TOKEN }} ${{ env.NEURO_STAGING_URL }}
           apolo config switch-cluster ${{ env.APOLO_CLUSTER }}
@@ -201,11 +206,11 @@ jobs:
           github.ref_type == 'branch' && github.ref_name == 'master'
         env:
           COLOR: "yes"
-          DOCKER_CI_USERNAME: ${{ secrets.DOCKERHUB_CI_USERNAME }}
-          DOCKER_CI_TOKEN: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+          DOCKER_CI_USERNAME: ${{ env.DOCKERHUB_CI_USERNAME }}
+          DOCKER_CI_TOKEN: ${{ env.DOCKERHUB_CI_TOKEN }}
           APOLO_CLUSTER: default
-          #APOLO_CLUSTER_SECONDARY: cato-poc  # TODO: uncomment when cato-poc cluster is fixed
-          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+          #APOLO_CLUSTER_SECONDARY: cato-poc
+          # AZURE_SAS_TOKEN: ${{ env.AZURE_SAS_TOKEN }}
           # Note: ${{ github.sha }} not working, see https://github.com/actions/checkout/issues/299
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           # Note: see tests/e2e/conftest.py:get_tested_archive_types()
@@ -220,12 +225,12 @@ jobs:
           !(github.ref_type == 'branch' && github.ref_name == 'master')
         env:
           COLOR: "yes"
-          DOCKER_CI_USERNAME: ${{ secrets.DOCKERHUB_CI_USERNAME }}
-          DOCKER_CI_TOKEN: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+          DOCKER_CI_USERNAME: ${{ env.DOCKERHUB_CI_USERNAME }}
+          DOCKER_CI_TOKEN: ${{ env.DOCKERHUB_CI_TOKEN }}
           APOLO_CLUSTER: default
           APOLO_EXTRAS_PRESET: cpu-small
-          #APOLO_CLUSTER_SECONDARY: cato-poc  # TODO: uncomment when cato-poc cluster is fixed
-          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+          #APOLO_CLUSTER_SECONDARY: cato-poc
+          # AZURE_SAS_TOKEN: ${{ env.AZURE_SAS_TOKEN }}
           # Note: ${{ github.sha }} not working, see https://github.com/actions/checkout/issues/299
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           # Note: see tests/e2e/conftest.py:get_tested_archive_types()
@@ -241,11 +246,11 @@ jobs:
           contains(steps.pr_labels.outputs.labels, ' e2e-data ')
         env:
           COLOR: "yes"
-          DOCKER_CI_USERNAME: ${{ secrets.DOCKERHUB_CI_USERNAME }}
-          DOCKER_CI_TOKEN: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+          DOCKER_CI_USERNAME: ${{ env.DOCKERHUB_CI_USERNAME }}
+          DOCKER_CI_TOKEN: ${{ env.DOCKERHUB_CI_TOKEN }}
           APOLO_CLUSTER: default
-          #APOLO_CLUSTER_SECONDARY: cato-poc  # TODO: uncomment when cato-poc cluster is fixed
-          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+          #APOLO_CLUSTER_SECONDARY: cato-poc
+          # AZURE_SAS_TOKEN: ${{ env.AZURE_SAS_TOKEN }}
           # Note: ${{ github.sha }} not working, see https://github.com/actions/checkout/issues/299
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           # Note: see tests/e2e/conftest.py:get_tested_archive_types()
@@ -262,12 +267,12 @@ jobs:
           contains(steps.pr_labels.outputs.labels, ' e2e-image ')
         env:
           COLOR: "yes"
-          DOCKER_CI_USERNAME: ${{ secrets.DOCKERHUB_CI_USERNAME }}
-          DOCKER_CI_TOKEN: ${{ secrets.DOCKERHUB_CI_TOKEN }}
+          DOCKER_CI_USERNAME: ${{ env.DOCKERHUB_CI_USERNAME }}
+          DOCKER_CI_TOKEN: ${{ env.DOCKERHUB_CI_TOKEN }}
           APOLO_CLUSTER: default
           APOLO_EXTRAS_PRESET: cpu-small
-          #APOLO_CLUSTER_SECONDARY: cato-poc  # TODO: uncomment when cato-poc cluster is fixed
-          AZURE_SAS_TOKEN: ${{ secrets.AZURE_SAS_TOKEN }}
+          #APOLO_CLUSTER_SECONDARY: cato-poc
+          # AZURE_SAS_TOKEN: ${{ env.AZURE_SAS_TOKEN }}
           # Note: ${{ github.sha }} not working, see https://github.com/actions/checkout/issues/299
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           # Note: see tests/e2e/conftest.py:get_tested_archive_types()
