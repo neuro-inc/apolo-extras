@@ -136,10 +136,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Authorize GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
+      # - name: Authorize GCP
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     credentials_json: ${{ secrets.E2E_TESTS_GCP_KEY }} # e2e-tests@development-421920.iam.gserviceaccount.com
+      # GCP test are disabled since we cannot easily test it via internal network
 
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
