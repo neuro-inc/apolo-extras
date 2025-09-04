@@ -143,7 +143,7 @@ jobs:
       # GCP test are disabled since we cannot easily test it via internal network
 
       - name: Setup gcloud
-        uses: google-github-actions/setup-gcloud@v2
+        uses: google-github-actions/setup-gcloud@v3
 
       - name: Configure AWS access
         uses: aws-actions/configure-aws-credentials@v4
