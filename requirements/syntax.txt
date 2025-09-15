@@ -2,5 +2,5 @@
 mypy==1.18.1
 pre-commit==4.3.0
 # mypy stubs and typesheds (https://mypy.readthedocs.io/en/latest/getting_started.html#library-stubs-and-typeshed)
-types-PyYAML==6.0.12.20250822
+types-PyYAML==6.0.12.20250915
 types-toml==0.10.8.20240310
