@@ -1,5 +1,5 @@
-apolo-cli==25.9.0
-apolo-sdk==25.9.0
+apolo-cli==25.9.1
+apolo-sdk==25.9.1
 click==8.3.0
 pyyaml==6.0.3
 setuptools==80.9.0
