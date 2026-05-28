@@ -1,6 +1,7 @@
 """Module for copying files by running neu.ro jobs"""
 
 import logging
+import shlex
 from dataclasses import dataclass, replace
 from typing import List, Mapping, Optional, Tuple
 
@@ -251,4 +252,4 @@ def _build_data_copy_command(
     if extract:
         flags.append("-x")
     full_command = command_prefix + flags + args
-    return " ".join(full_command)
+    return shlex.join(full_command)

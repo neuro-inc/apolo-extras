@@ -45,9 +45,9 @@ class TarManager(ArchiveManager, CLIRunner):
         subcommand = mapping[destination.archive_type]
         args = [
             subcommand,
-            str(destination),
+            str(destination.as_local_path()),
             # f"--exclude={destination.filename}",
-            str(source),
+            str(source.as_local_path()),
         ]
         await self.run_command(command=command, args=args)
         return destination
@@ -68,8 +68,13 @@ class TarManager(ArchiveManager, CLIRunner):
             ArchiveType.TAR_PLAIN: "xvf",
         }
         subcommand = mapping[source.archive_type]
-        args = [subcommand, source.as_str(), f"-C", destination.as_str()]
-        destination.as_path().mkdir(exist_ok=True, parents=True)
+        args = [
+            subcommand,
+            str(source.as_local_path()),
+            "-C",
+            str(destination.as_local_path()),
+        ]
+        destination.as_local_path().mkdir(exist_ok=True, parents=True)
         await self.run_command(command=command, args=args)
         return destination
 
@@ -92,12 +97,14 @@ class GzipManager(ArchiveManager, CLIRunner):
                 "gzip does not support folder compression, "
                 "use .tar.gz extension instead."
             )
-        args = ["-rkvf", source.as_str()]
+        args = ["-rkvf", str(source.as_local_path())]
         await self.run_command(command=command, args=args)
         # gzip does not support setting destination
-        temp_destination = source.as_str() + ".gz"
+        temp_destination = str(source.as_local_path()) + ".gz"
         # TODO: add support for non-unix OS
-        await self.run_command("mv", ["-v", temp_destination, destination.as_str()])
+        await self.run_command(
+            "mv", ["-v", temp_destination, str(destination.as_local_path())]
+        )
         return destination
 
     async def extract(self, source: Resource, destination: Resource) -> Resource:
@@ -110,12 +117,14 @@ class GzipManager(ArchiveManager, CLIRunner):
                 f"Supported types: "
                 f"{ArchiveType.get_extensions_for_type(ArchiveType.GZ)}"
             )
-        args = ["--keep", source.as_str()]
+        args = ["--keep", str(source.as_local_path())]
         await self.run_command(command=command, args=args)
         temp_destination = str(
-            source.as_path().with_suffix("")
+            source.as_local_path().with_suffix("")
         )  # gzip extracts inplace
-        await self.run_command("mv", ["-v", temp_destination, destination.as_str()])
+        await self.run_command(
+            "mv", ["-v", temp_destination, str(destination.as_local_path())]
+        )
         return destination
 
 
@@ -133,7 +142,11 @@ class ZipManager(ArchiveManager, CLIRunner):
                 f"{ArchiveType.get_extensions_for_type(ArchiveType.ZIP)}"
             )
         # check if works as expected
-        args = ["-rv", destination.as_str(), source.as_str()]
+        args = [
+            "-rv",
+            str(destination.as_local_path()),
+            str(source.as_local_path()),
+        ]
         await self.run_command(command=command, args=args)
         return destination
 
@@ -147,8 +160,13 @@ class ZipManager(ArchiveManager, CLIRunner):
                 f"Supported types: "
                 f"{ArchiveType.get_extensions_for_type(ArchiveType.ZIP)}"
             )
-        args = ["-o", source.as_str(), "-d", destination.as_str()]
-        destination.as_path().mkdir(exist_ok=True, parents=True)
+        args = [
+            "-o",
+            str(source.as_local_path()),
+            "-d",
+            str(destination.as_local_path()),
+        ]
+        destination.as_local_path().mkdir(exist_ok=True, parents=True)
         await self.run_command(command=command, args=args)
         return destination
 
@@ -173,7 +191,7 @@ def _get_archive_manager(archive: Resource) -> ArchiveManager:
 async def copy(source: Resource, destination: Resource) -> Resource:
     """Copy source into destination"""
     command = "cp"
-    args = [source.as_str(), destination.as_str()]
+    args = [str(source.as_local_path()), str(destination.as_local_path())]
     runner = CLIRunner()
     await runner.run_command(command=command, args=args)
     return destination
