@@ -291,6 +291,11 @@ class Resource:
     def as_path(self) -> Path:
         return Path(self.url.path)
 
+    def as_local_path(self) -> Path:
+        if self.data_url_type != DataUrlType.LOCAL_FS:
+            raise ValueError(f"Resource {self} is not a local filesystem path")
+        return self.as_path()
+
     def as_str(self) -> str:
         return str(self.url)
 
@@ -337,7 +342,7 @@ class Resource:
 
 def ensure_folder_exists(local_resource: Resource) -> None:
     """Ensure the folder (in case of the file resource - parent folder) exists"""
-    folder_name, _ = os.path.split(local_resource.as_str())
+    folder_name, _ = os.path.split(str(local_resource.as_local_path()))
     logger.info(f"Creating folder for {folder_name}")
     Path(folder_name).mkdir(exist_ok=True, parents=True)
 

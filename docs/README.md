@@ -113,6 +113,8 @@ apolo-extras config save-registry-auth ${HOME}/.docker/config.json --cluster def
 ### Data Transfer Between Projects
 The apolo-extras data transfer command facilitates data movement between different internal storage locations. This is not supported with regular Apolo CLI apolo cp.
 
+Generated copy commands now quote paths safely, so filenames with spaces are handled correctly. Local filesystem directory copies also preserve symlinks instead of failing on symlinked entries.
+
 Between directories in the same project:
 ```bash
 # Copy data between directories on the same project

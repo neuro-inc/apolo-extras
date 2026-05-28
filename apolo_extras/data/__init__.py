@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import shlex
 from pathlib import Path
 from typing import Optional, Sequence
 
@@ -209,12 +210,25 @@ async def _run_copy_container(
         f"{dst_uri_str}:/storage:rw",
         "-e",
         f"APOLO_CLUSTER={src_cluster}",  # inside the job, switch apolo to 'src_cluster'
-        "--life-span 10d",
+        "--life-span",
+        "10d",
         APOLO_EXTRAS_IMAGE,
         "--",
-        f"apolo --show-traceback cp --progress -r -u -T {src_uri_str} /storage",
+        shlex.join(
+            [
+                "apolo",
+                "--show-traceback",
+                "cp",
+                "--progress",
+                "-r",
+                "-u",
+                "-T",
+                src_uri_str,
+                "/storage",
+            ]
+        ),
     ]
-    cmd = " ".join(args)
+    cmd = shlex.join(args)
     click.echo(f"Running '{cmd}'")
     subprocess = await asyncio.create_subprocess_shell(cmd)
     returncode = await subprocess.wait()
