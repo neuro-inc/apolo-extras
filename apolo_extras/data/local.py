@@ -21,7 +21,6 @@ from .common import Copier, DataUrlType, Resource, ensure_folder_exists
 from .gcs import GCSCopier
 from .s3 import S3Copier
 
-
 logger = logging.getLogger(__name__)
 
 

@@ -15,7 +15,6 @@ from .common import Copier, DataUrlType, Resource
 from .local import CloudToLocalCopier, LocalToCloudCopier, LocalToLocalCopier
 from .remote import RemoteCopier
 
-
 logger = logging.getLogger(__name__)
 
 # TODO: (A.K.) implement TransferOperation

@@ -3,7 +3,6 @@ from typing import List, Tuple
 
 from ..conftest import run_cli
 
-
 logger = logging.getLogger(__name__)
 
 

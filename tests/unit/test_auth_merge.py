@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from deepdiff import DeepDiff
 
-
 TEST_ASSETS_ROOT = (Path(__file__).parent.parent / "assets").resolve()
 APOLO_EXTRAS_ROOT = Path(__file__).parent.parent.parent / "apolo_extras"
 LOGGER = logging.getLogger(__name__)

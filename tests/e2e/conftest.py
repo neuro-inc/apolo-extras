@@ -29,7 +29,6 @@ from apolo_extras.common import APOLO_EXTRAS_IMAGE
 from apolo_extras.config import _build_registy_auth
 from apolo_extras.image_builder import KANIKO_AUTH_PREFIX
 
-
 DISK_PREFIX = "<DISK_PREFIX>"
 TEMPDIR_PREFIX = "<TEMPDIR_PREFIX>"
 

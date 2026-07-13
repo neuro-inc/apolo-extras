@@ -2,7 +2,6 @@ import re
 
 from setuptools import find_packages, setup
 
-
 DIST_NAME = "apolo-extras"
 
 with open("apolo_extras/version.py") as f:

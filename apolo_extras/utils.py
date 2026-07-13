@@ -8,7 +8,6 @@ from typing import AsyncIterator, List, Optional
 import apolo_sdk
 from apolo_sdk import Client
 
-
 logger = logging.getLogger(__name__)
 
 

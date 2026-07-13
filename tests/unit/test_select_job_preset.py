@@ -9,7 +9,6 @@ from apolo_extras.utils import select_job_preset
 
 from .conftest import MockApoloClient
 
-
 FAKE_PRESETS = {
     "bad": Preset(cpu=1, memory=9999 * 2**20, credits_per_hour=Decimal("5")),
     "expensive": Preset(cpu=2, memory=9999 * 2**20, credits_per_hour=Decimal("15")),

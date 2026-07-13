@@ -27,7 +27,6 @@ from .platform_to_cloud import generate_platform_to_cloud_copy_configs
 from .resources import CopyTestConfig
 from .utils import _run_command
 
-
 UUID4_PATTERN = r"[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 DISK_ID_PATTERN = rf"disk-{UUID4_PATTERN}"
 DISK_ID_REGEX = re.compile(DISK_ID_PATTERN)

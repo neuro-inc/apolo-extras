@@ -7,7 +7,6 @@ from typing import Any, Dict
 
 import aiohttp
 
-
 LIST_CONTAINERS_URL = (
     "https://api.github.com/"
     f"users/neuro-inc/packages/container/{os.environ['GH_REPO_NAME']}/versions"

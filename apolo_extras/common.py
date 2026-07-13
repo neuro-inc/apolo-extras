@@ -8,7 +8,6 @@ import click
 from .const import EX_OK, EX_PLATFORMERROR
 from .version import __version__
 
-
 logger = logging.getLogger(__name__)
 
 APOLO_EXTRAS_IMAGE = os.environ.get(

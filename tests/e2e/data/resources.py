@@ -14,7 +14,6 @@ from apolo_extras.data.common import Resource
 from ..conftest import DISK_PREFIX, TEMPDIR_PREFIX
 from .utils import _run_command
 
-
 logger = logging.getLogger(__name__)
 
 

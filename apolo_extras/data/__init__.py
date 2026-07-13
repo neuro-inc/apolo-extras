@@ -13,7 +13,6 @@ from ..utils import get_platform_client
 from .archive import ArchiveType
 from .operations import CopyOperation
 
-
 SUPPORTED_ARCHIVE_TYPES = list(ArchiveType.get_extension_mapping().keys())
 SUPPORTED_OBJECT_STORAGE_SCHEMES = {
     "AWS": "s3://",

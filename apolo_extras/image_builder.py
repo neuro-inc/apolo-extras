@@ -17,7 +17,6 @@ from apolo_sdk._url_utils import _extract_path
 from rich.console import Console
 from yarl import URL
 
-
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
 KANIKO_IMAGE_TAG = "v1.20.0-debug"  # debug has busybox, which is needed for auth
 KANIKO_AUTH_PREFIX = "NE_REGISTRY_AUTH"
