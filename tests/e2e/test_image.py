@@ -13,7 +13,6 @@ from apolo_extras.const import EX_PLATFORMERROR
 
 from .conftest import CLIRunner, Secret, gen_random_file
 
-
 LOGGER = logging.getLogger(__name__)
 
 
@@ -36,15 +35,11 @@ def test_image_build_overwrite(
 
     random_file_to_disable_layer_caching = gen_random_file(dockerfile_path.parent)
     with open(dockerfile_path, "w") as f:
-        f.write(
-            textwrap.dedent(
-                f"""\
+        f.write(textwrap.dedent(f"""\
                 FROM ghcr.io/neuro-inc/alpine:latest
                 ADD {random_file_to_disable_layer_caching} /tmp
                 RUN echo !
-                """
-            )
-        )
+                """))
 
     python_version = f"{sys.version_info[0]}.{sys.version_info[1]}"
     img_uri_str = f"image:extras-e2e-overwrite:{sys.platform}-{python_version}-latest"
@@ -101,17 +96,13 @@ def test_ignored_files_are_not_copied(
     Path(".neuroignore").write_text(f"{ignored_file}\n")
 
     random_file_to_disable_layer_caching = gen_random_file(dockerfile_path.parent)
-    Path(dockerfile_path).write_text(
-        textwrap.dedent(
-            f"""\
+    Path(dockerfile_path).write_text(textwrap.dedent(f"""\
             FROM ghcr.io/neuro-inc/alpine:latest
             ADD {random_file_to_disable_layer_caching} /tmp
             ADD . /
             RUN find / -name "*{random_file_to_disable_layer_caching.stem}*"
             RUN find / -name "*{ignored_file.stem}*"
-            """
-        )
-    )
+            """))
 
     img_uri_str = f"image:extras-e2e:{uuid.uuid4()}"
 
@@ -171,15 +162,11 @@ def test_image_transfer(
 
         random_file_to_disable_layer_caching = gen_random_file(dockerfile_path.parent)
         with open(dockerfile_path, "w") as f:
-            f.write(
-                textwrap.dedent(
-                    f"""\
+            f.write(textwrap.dedent(f"""\
                     FROM ghcr.io/neuro-inc/alpine:latest
                     ADD {random_file_to_disable_layer_caching} /tmp
                     RUN echo !
-                    """
-                )
-            )
+                    """))
 
         cmd = [
             "apolo",
@@ -236,15 +223,11 @@ def test_external_image_build(
 
     random_file_to_disable_layer_caching = gen_random_file(dockerfile_path.parent)
     with open(dockerfile_path, "w") as f:
-        f.write(
-            textwrap.dedent(
-                f"""\
+        f.write(textwrap.dedent(f"""\
                 FROM ghcr.io/neuro-inc/alpine:latest
                 ADD {random_file_to_disable_layer_caching} /tmp
                 RUN echo !
-                """
-            )
-        )
+                """))
     img_uri_str = f"{dckrhb_uname}/{img_repo_name}{img_tag}"
     build_command = [
         "apolo",
@@ -284,18 +267,14 @@ def test_image_local_build(cli_runner: CLIRunner) -> None:
         base_image = "ghcr.io/neuro-inc/alpine:latest"
 
     with open(dockerfile_path, "w") as f:
-        f.write(
-            textwrap.dedent(
-                f"""\
+        f.write(textwrap.dedent(f"""\
                     FROM {base_image}
 
                     ARG CLOUD_SDK_VERSION=347.0.0
                     ENV CLOUD_SDK_VERSION=$CLOUD_SDK_VERSION
 
                     RUN echo sdk=$CLOUD_SDK_VERSION
-                """
-            )
-        )
+                """))
 
     tag = str(uuid.uuid4())
     img_uri_str = f"image:extras-e2e:{tag}"

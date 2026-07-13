@@ -4,7 +4,6 @@ from typing import List
 from ..conftest import CLOUD_SOURCE_PREFIXES, get_tested_archive_types
 from .resources import TEMPDIR_PREFIX, CopyTestConfig, DataTestResource
 
-
 logger = logging.getLogger(__name__)
 
 

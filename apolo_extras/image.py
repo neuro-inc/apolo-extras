@@ -22,7 +22,6 @@ from .image_builder import (
 )
 from .utils import get_platform_client, select_job_preset
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -314,14 +313,10 @@ async def _image_transfer(
             src_reg_auth = await create_docker_config_auth(src_client.config)
 
         dockerfile = Path(f"{tmpdir}/Dockerfile")
-        dockerfile.write_text(
-            textwrap.dedent(
-                f"""\
+        dockerfile.write_text(textwrap.dedent(f"""\
                 FROM {src_image.as_docker_url()}
                 LABEL neu.ro/source-image-uri={src_uri_str}
-                """
-            )
-        )
+                """))
         migration_job_tags = (
             f"src-image:{src_image}",
             f"apolo-extras:image-transfer",

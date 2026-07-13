@@ -9,7 +9,6 @@ from yarl import URL
 from ..utils import CLIRunner
 from .common import Copier, DataUrlType, Resource
 
-
 logger = logging.getLogger(__name__)
 
 

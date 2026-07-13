@@ -9,7 +9,6 @@ from ..conftest import (
 )
 from .resources import CopyTestConfig, DataTestResource
 
-
 logger = logging.getLogger(__name__)
 
 

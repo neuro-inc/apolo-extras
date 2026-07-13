@@ -10,7 +10,6 @@ from .data import data_cp, data_transfer  # noqa
 from .image import image_build, image_transfer  # noqa
 from .k8s import generate_k8s_registry_secret, generate_k8s_secret  # noqa
 
-
 logger = logging.getLogger(__name__)
 
 

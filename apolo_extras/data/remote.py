@@ -12,7 +12,6 @@ from ..common import APOLO_EXTRAS_IMAGE, EX_OK, _attach_job_stdout
 from ..utils import get_default_preset, select_job_preset
 from .common import Copier, DataUrlType, Resource
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -48,7 +47,7 @@ class RemoteJobConfig:
         Copy job will copy data from `source` to `destination`"""
         image = apolo_client.parse.remote_image(APOLO_EXTRAS_IMAGE)
 
-        (patched_source, patched_destination, data_mounts) = _map_into_volumes(
+        patched_source, patched_destination, data_mounts = _map_into_volumes(
             source=source,
             destination=destination,
         )

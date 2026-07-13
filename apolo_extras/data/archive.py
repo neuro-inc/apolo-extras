@@ -6,7 +6,6 @@ import logging
 from ..utils import CLIRunner
 from .common import ArchiveType, Resource, ensure_folder_exists
 
-
 logger = logging.getLogger(__name__)
 
 
