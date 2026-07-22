@@ -8,6 +8,7 @@ from yarl import URL
 from apolo_extras.image import _build_image
 from apolo_extras.image_builder import ImageBuilder
 
+
 KANIKO_IMAGE = "gcr.io/kaniko-project/executor:v1.20.0-debug"
 
 
