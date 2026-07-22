@@ -1,0 +1,1 @@
+Fixed `image build` reporting success and exiting with code 0 when the builder job failed. The build job is now run detached and its result is taken from the job status API instead of the exit code of the attached `apolo job run`, which is 0 after a terminal detach or a dropped attach connection.

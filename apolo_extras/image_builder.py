@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import shlex
+import sys
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
@@ -17,6 +18,7 @@ from apolo_sdk._url_utils import _extract_path
 from rich.console import Console
 from yarl import URL
 
+from .const import EX_OK, EX_PLATFORMERROR
 
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
 KANIKO_IMAGE_TAG = "v1.20.0-debug"  # debug has busybox, which is needed for auth
@@ -351,7 +353,56 @@ class RemoteImageBuilder(ImageBuilder):
             build_command.append(kaniko_args_str)
 
         # TODO: remove context after the build is finished?
-        return await self._execute_subprocess(build_command)
+        return await self._run_build_job(build_command)
+
+    async def _run_build_job(self, command: Sequence[str]) -> int:
+        # run the job detached and track its result via the API:
+        # the exit code of an attached `apolo job run` is 0 after a detach
+        # or a dropped attach connection even if the build job fails later
+        run_idx = command.index("run")
+        command = [
+            command[0],
+            "-q",
+            *command[1 : run_idx + 1],
+            "--detach",
+            *command[run_idx + 1 :],
+        ]
+        logger.debug("Executing subprocess: %s", " ".join(command))
+        process = await asyncio.create_subprocess_exec(
+            *command, stdout=asyncio.subprocess.PIPE
+        )
+        stdout, _ = await process.communicate()
+        output = stdout.decode().strip() if stdout else ""
+        if process.returncode != EX_OK:
+            if output:
+                sys.stdout.write(output + "\n")
+            logger.error("Failed to start the build job")
+            return process.returncode or EX_PLATFORMERROR
+        match = re.search(r"job-[0-9a-f-]{36}", output)
+        if match is None:
+            logger.error(f"Unable to determine the build job id from {output!r}")
+            return EX_PLATFORMERROR
+        job_id = match.group(0)
+        logger.info(f"Build job started: {job_id}")
+        try:
+            async with self._client.jobs.monitor(job_id) as it:
+                async for chunk in it:
+                    sys.stdout.write(chunk.decode("utf-8", errors="replace"))
+                    sys.stdout.flush()
+        except asyncio.CancelledError:
+            raise
+        except Exception as e:
+            logger.warning(f"Build job log streaming was interrupted: {e}")
+        descr = await self._client.jobs.status(job_id)
+        while not descr.status.is_finished:
+            await asyncio.sleep(5)
+            descr = await self._client.jobs.status(job_id)
+        if descr.status == apolo_sdk.JobStatus.SUCCEEDED:
+            return EX_OK
+        logger.error(
+            f"Build job {job_id} failed: {descr.history.reason or descr.status}"
+        )
+        return descr.history.exit_code or EX_PLATFORMERROR
 
     async def _upload_to_storage(self, local_url: URL, remote_url: URL) -> None:
         logger.info(f"Uploading {local_url} to {remote_url}")
