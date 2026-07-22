@@ -55,7 +55,7 @@ async def test_image_builder__min_parameters(
     ]
     job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
     job_start_mock.assert_awaited_once()
-    kwargs = job_start_mock.await_args.kwargs
+    kwargs = job_start_mock.await_args_list[0].kwargs
     assert str(kwargs["image"]) == KANIKO_IMAGE
     assert kwargs["preset_name"] == "cpu-small"
     assert kwargs["entrypoint"] is None
@@ -123,7 +123,7 @@ async def test_image_builder__full_parameters(
     )
     job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
     job_start_mock.assert_awaited_once()
-    kwargs = job_start_mock.await_args.kwargs
+    kwargs = job_start_mock.await_args_list[0].kwargs
     assert str(kwargs["image"]) == KANIKO_IMAGE
     assert kwargs["preset_name"] == "custom-preset"
     assert kwargs["entrypoint"] is None
@@ -233,7 +233,7 @@ async def test_image_builder__custom_project(
     )
     job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
     job_start_mock.assert_awaited_once()
-    kwargs = job_start_mock.await_args.kwargs
+    kwargs = job_start_mock.await_args_list[0].kwargs
     assert kwargs["project_name"] == "otherproject"
     assert kwargs["tags"] == (
         "kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",
@@ -287,7 +287,7 @@ async def test_image_builder__storage_context(
     assert subproc_mock.await_count == 0
     job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
     job_start_mock.assert_awaited_once()
-    kwargs = job_start_mock.await_args.kwargs
+    kwargs = job_start_mock.await_args_list[0].kwargs
     assert kwargs["volumes"] == [
         apolo_sdk.Volume(
             storage_uri=expected_storage_build_root / ".docker.config.json",
