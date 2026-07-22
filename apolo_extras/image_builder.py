@@ -20,6 +20,7 @@ from yarl import URL
 
 from .const import EX_OK, EX_PLATFORMERROR
 
+
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
 KANIKO_IMAGE_TAG = "v1.20.0-debug"  # debug has busybox, which is needed for auth
 KANIKO_AUTH_PREFIX = "NE_REGISTRY_AUTH"
