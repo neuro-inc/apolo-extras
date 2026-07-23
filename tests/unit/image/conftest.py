@@ -106,6 +106,18 @@ async def _apolo_client() -> t.AsyncGenerator[apolo_sdk.Client, None]:
             mock.patch("apolo_sdk._storage.Storage.create", mock.AsyncMock())
         )
         stack.enter_context(
+            mock.patch(
+                "apolo_sdk._jobs.Jobs.start",
+                mock.AsyncMock(return_value=mock.Mock(id="job-mocked-id")),
+            )
+        )
+        stack.enter_context(
+            mock.patch(
+                "apolo_extras.image_builder._attach_job_stdout",
+                mock.AsyncMock(return_value=0),
+            )
+        )
+        stack.enter_context(
             mock.patch("apolo_extras.image._check_image_exists", return_value=False)
         )
         stack.enter_context(mock.patch("uuid.uuid4", return_value="mocked-uuid-4"))

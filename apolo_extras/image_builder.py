@@ -6,16 +6,20 @@ import re
 import shlex
 import uuid
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, AsyncIterator, Dict, List, Optional, Sequence, Tuple, Type
 
 import apolo_sdk
 import click
 from apolo_cli.formatters.images import DockerImageProgress
+from apolo_cli.utils import resolve_disk
 from apolo_sdk._url_utils import _extract_path
 from rich.console import Console
 from yarl import URL
+
+from .common import _attach_job_stdout
+from .utils import get_default_preset
 
 
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
@@ -25,8 +29,8 @@ KANIKO_DOCKER_CONFIG_PATH = "/kaniko/.docker/config.json"
 KANIKO_AUTH_SCRIPT_PATH = "/kaniko/.docker/merge_docker_auths.sh"
 KANIKO_CONTEXT_PATH = "/kaniko_context"
 KANIKO_EXTRA_ENVS = ("container=docker",)
-BUILDER_JOB_LIFESPAN = "4h"
-BUILDER_JOB_SHEDULE_TIMEOUT = "20m"
+BUILDER_JOB_LIFESPAN = 4 * 60 * 60
+BUILDER_JOB_SHEDULE_TIMEOUT = 20 * 60
 
 MIN_BUILD_PRESET_CPU: float = 2
 MIN_BUILD_PRESET_MEM: int = 4096
@@ -309,23 +313,6 @@ class RemoteImageBuilder(ImageBuilder):
 
         kaniko_args = self._add_extra_kaniko_args(kaniko_args, extra_kaniko_args)
 
-        build_command = [
-            "apolo",
-            "--disable-pypi-version-check",
-            "job",
-            "run",
-            f"--life-span={BUILDER_JOB_LIFESPAN}",
-            f"--schedule-timeout={BUILDER_JOB_SHEDULE_TIMEOUT}",
-            f"--project={project_name}",
-        ]
-        if job_preset:
-            build_command.append(f"--preset={job_preset}")
-        for build_tag in build_tags:
-            build_command.append(f"--tag={build_tag}")
-        for volume in volumes:
-            build_command.append(f"--volume={volume}")
-        for env in envs:
-            build_command.append(f"--env={env}")
         envs_keys = [e.split("=")[0] for e in envs]
         for extra_env in KANIKO_EXTRA_ENVS:
             if extra_env.split("=")[0] in envs_keys:
@@ -335,23 +322,57 @@ class RemoteImageBuilder(ImageBuilder):
                     "otherwise, the build might fail."
                 )
             else:
-                build_command.append(f"--env={extra_env}")
+                envs += (extra_env,)
 
+        entrypoint: Optional[str] = None
+        command: Optional[str] = None
         kaniko_args_str = " ".join(kaniko_args)
         if job_entrypoint_overwrite:
             job_entrypoint_overwrite.append(kaniko_args_str)
-            build_command.append("--entrypoint")
-            build_command.append(
-                f"sh -c {shlex.quote(' '.join(job_entrypoint_overwrite))}"
-            )
-            build_command.append(f"{KANIKO_IMAGE_REF}:{KANIKO_IMAGE_TAG}")
+            entrypoint = f"sh -c {shlex.quote(' '.join(job_entrypoint_overwrite))}"
         else:
-            build_command.append(f"{KANIKO_IMAGE_REF}:{KANIKO_IMAGE_TAG}")
-            build_command.append("--")
-            build_command.append(kaniko_args_str)
+            command = kaniko_args_str
 
+        job_env = self._client.parse.envs(envs)
+        job_volumes = self._client.parse.volumes(volumes)
+        # apolo_client.jobs.start accepts disk URIs with IDs only
+        disk_volumes = []
+        for disk in job_volumes.disk_volumes:
+            disk_id = await resolve_disk(disk.disk_uri, client=self._client)
+            disk_volumes.append(replace(disk, disk_uri=disk.disk_uri / f"../{disk_id}"))
+
+        # the build job is started detached and tracked via the API:
+        # the exit code of an attached `apolo job run` is 0 after a detach
+        # or a dropped attach connection even if the build job fails later
         # TODO: remove context after the build is finished?
-        return await self._execute_subprocess(build_command)
+        job = await self._client.jobs.start(
+            image=self._client.parse.remote_image(
+                f"{KANIKO_IMAGE_REF}:{KANIKO_IMAGE_TAG}"
+            ),
+            preset_name=job_preset or get_default_preset(self._client),
+            entrypoint=entrypoint,
+            command=command,
+            env=job_env.env,
+            secret_env=job_env.secret_env,
+            volumes=job_volumes.volumes,
+            secret_files=job_volumes.secret_files,
+            disk_volumes=disk_volumes,
+            tags=build_tags,
+            life_span=BUILDER_JOB_LIFESPAN,
+            schedule_timeout=BUILDER_JOB_SHEDULE_TIMEOUT,
+            project_name=project_name,
+        )
+        job_id = job.id
+        logger.info(f"Started build job {job_id}")
+        try:
+            return await _attach_job_stdout(job, self._client, name="build")
+        except asyncio.CancelledError:
+            try:
+                await asyncio.shield(self._client.jobs.kill(job_id))
+                logger.warning(f"The build job {job_id} was cancelled")
+            except Exception:
+                logger.warning(f"Failed to kill the build job {job_id}")
+            raise
 
     async def _upload_to_storage(self, local_url: URL, remote_url: URL) -> None:
         logger.info(f"Uploading {local_url} to {remote_url}")

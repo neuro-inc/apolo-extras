@@ -1,11 +1,15 @@
 from pathlib import Path
 from unittest import mock
 
+import apolo_sdk
 import pytest
 from yarl import URL
 
 from apolo_extras.image import _build_image
 from apolo_extras.image_builder import ImageBuilder
+
+
+KANIKO_IMAGE = "gcr.io/kaniko-project/executor:v1.20.0-debug"
 
 
 async def test_image_builder__min_parameters(
@@ -39,7 +43,7 @@ async def test_image_builder__min_parameters(
         mock.ANY,
     )
     subproc_mock: mock.AsyncMock = remote_image_builder._execute_subprocess  # type: ignore # noqa: E501
-    assert subproc_mock.await_count == 2
+    assert subproc_mock.await_count == 1
     upload_ctx_cmd = subproc_mock.await_args_list[0][0][0]
     assert upload_ctx_cmd == [
         "apolo",
@@ -49,25 +53,35 @@ async def test_image_builder__min_parameters(
         Path(context).resolve().as_uri(),
         str(expected_storage_build_root / "context"),
     ]
-    start_build_cmd = subproc_mock.await_args_list[1][0][0]
-    start_build_apolo_args = start_build_cmd[: start_build_cmd.index("--")]
-    start_build_job_arg = start_build_cmd[start_build_cmd.index("--") + 1 :][0]
-    start_build_kaniko_args = start_build_job_arg.split(" ")
-    assert start_build_apolo_args == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "job",
-        "run",
-        "--life-span=4h",
-        "--schedule-timeout=20m",
-        "--project=myproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/context:/kaniko_context:rw",  # noqa: E501
-        "--env=container=docker",
-        "gcr.io/kaniko-project/executor:v1.20.0-debug",
+    job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
+    job_start_mock.assert_awaited_once()
+    kwargs = job_start_mock.await_args_list[0].kwargs
+    assert str(kwargs["image"]) == KANIKO_IMAGE
+    assert kwargs["preset_name"] == "cpu-small"
+    assert kwargs["entrypoint"] is None
+    assert kwargs["env"] == {"container": "docker"}
+    assert kwargs["secret_env"] == {}
+    assert kwargs["volumes"] == [
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / ".docker.config.json",
+            container_path="/kaniko/.docker/config.json",
+            read_only=True,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / "context",
+            container_path="/kaniko_context",
+            read_only=False,
+        ),
     ]
-    assert start_build_kaniko_args == [
+    assert kwargs["secret_files"] == []
+    assert kwargs["disk_volumes"] == []
+    assert kwargs["tags"] == (
+        "kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+    )
+    assert kwargs["life_span"] == 4 * 60 * 60
+    assert kwargs["schedule_timeout"] == 20 * 60
+    assert kwargs["project_name"] == "myproject"
+    assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
         "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
@@ -107,52 +121,42 @@ async def test_image_builder__full_parameters(
     expected_storage_build_root = URL(
         "storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4"
     )
-    storage_mkdir_mock: mock.AsyncMock = remote_image_builder._client.storage.mkdir  # type: ignore # noqa: E501
-    storage_mkdir_mock.assert_awaited_once_with(
-        expected_storage_build_root, parents=True
-    )
-    storage_create_mock: mock.AsyncMock = remote_image_builder._client.storage.create  # type: ignore # noqa: E501
-    storage_create_mock.assert_awaited_once_with(
-        expected_storage_build_root / ".docker.config.json",
-        mock.ANY,
-    )
-    subproc_mock: mock.AsyncMock = remote_image_builder._execute_subprocess  # type: ignore # noqa: E501
-    assert subproc_mock.await_count == 2
-    upload_ctx_cmd = subproc_mock.await_args_list[0][0][0]
-    assert upload_ctx_cmd == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "cp",
-        "--recursive",
-        Path(context).resolve().as_uri(),
-        str(expected_storage_build_root / "context"),
+    job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
+    job_start_mock.assert_awaited_once()
+    kwargs = job_start_mock.await_args_list[0].kwargs
+    assert str(kwargs["image"]) == KANIKO_IMAGE
+    assert kwargs["preset_name"] == "custom-preset"
+    assert kwargs["entrypoint"] is None
+    assert kwargs["env"] == {"ENV1": "VAL1", "ENV2": "VAL2", "container": "docker"}
+    assert kwargs["secret_env"] == {}
+    assert kwargs["volumes"] == [
+        apolo_sdk.Volume(
+            storage_uri=URL("storage://mycluster/NO_ORG/myproject/somevol"),
+            container_path="/mnt/vol1",
+            read_only=False,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=URL("storage://mycluster/NO_ORG/someproject2/somevol2"),
+            container_path="/mnt/vol2",
+            read_only=False,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / ".docker.config.json",
+            container_path="/kaniko/.docker/config.json",
+            read_only=True,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / "context",
+            container_path="/kaniko_context",
+            read_only=False,
+        ),
     ]
-    start_build_cmd = subproc_mock.await_args_list[1][0][0]
-    start_build_apolo_args = start_build_cmd[: start_build_cmd.index("--")]
-    start_build_job_arg = start_build_cmd[start_build_cmd.index("--") + 1 :][0]
-    start_build_kaniko_args = start_build_job_arg.split(" ")
-    assert start_build_apolo_args == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "job",
-        "run",
-        "--life-span=4h",
-        "--schedule-timeout=20m",
-        "--project=myproject",
-        "--preset=custom-preset",
-        "--tag=tag1",
-        "--tag=tag2",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
-        "--volume=storage:somevol:/mnt/vol1",
-        "--volume=storage:/someproject2/somevol2:/mnt/vol2",
-        "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/context:/kaniko_context:rw",  # noqa: E501
-        "--env=ENV1=VAL1",
-        "--env=ENV2=VAL2",
-        "--env=container=docker",
-        "gcr.io/kaniko-project/executor:v1.20.0-debug",
-    ]
-    assert start_build_kaniko_args == [
+    assert kwargs["tags"] == (
+        "tag1",
+        "tag2",
+        "kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+    )
+    assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
         "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
@@ -227,41 +231,26 @@ async def test_image_builder__custom_project(
     storage_mkdir_mock.assert_awaited_once_with(
         expected_storage_build_root, parents=True
     )
-    storage_create_mock: mock.AsyncMock = remote_image_builder._client.storage.create  # type: ignore # noqa: E501
-    storage_create_mock.assert_awaited_once_with(
-        expected_storage_build_root / ".docker.config.json",
-        mock.ANY,
+    job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
+    job_start_mock.assert_awaited_once()
+    kwargs = job_start_mock.await_args_list[0].kwargs
+    assert kwargs["project_name"] == "otherproject"
+    assert kwargs["tags"] == (
+        "kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",
     )
-    subproc_mock: mock.AsyncMock = remote_image_builder._execute_subprocess  # type: ignore # noqa: E501
-    assert subproc_mock.await_count == 2
-    upload_ctx_cmd = subproc_mock.await_args_list[0][0][0]
-    assert upload_ctx_cmd == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "cp",
-        "--recursive",
-        Path(context).resolve().as_uri(),
-        str(expected_storage_build_root / "context"),
+    assert kwargs["volumes"] == [
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / ".docker.config.json",
+            container_path="/kaniko/.docker/config.json",
+            read_only=True,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / "context",
+            container_path="/kaniko_context",
+            read_only=False,
+        ),
     ]
-    start_build_cmd = subproc_mock.await_args_list[1][0][0]
-    start_build_apolo_args = start_build_cmd[: start_build_cmd.index("--")]
-    start_build_job_arg = start_build_cmd[start_build_cmd.index("--") + 1 :][0]
-    start_build_kaniko_args = start_build_job_arg.split(" ")
-    assert start_build_apolo_args == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "job",
-        "run",
-        "--life-span=4h",
-        "--schedule-timeout=20m",
-        "--project=otherproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/otherproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/otherproject/.builds/mocked-uuid-4/context:/kaniko_context:rw",  # noqa: E501
-        "--env=container=docker",
-        "gcr.io/kaniko-project/executor:v1.20.0-debug",
-    ]
-    assert start_build_kaniko_args == [
+    assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
         "--destination=registry.mycluster.noexists/NO_ORG/otherproject/targetimage:latest",  # noqa: E501
@@ -294,36 +283,24 @@ async def test_image_builder__storage_context(
     expected_storage_build_root = URL(
         "storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4"
     )
-    storage_mkdir_mock: mock.AsyncMock = remote_image_builder._client.storage.mkdir  # type: ignore # noqa: E501
-    storage_mkdir_mock.assert_awaited_once_with(
-        expected_storage_build_root, parents=True
-    )
-    storage_create_mock: mock.AsyncMock = remote_image_builder._client.storage.create  # type: ignore # noqa: E501
-    storage_create_mock.assert_awaited_once_with(
-        expected_storage_build_root / ".docker.config.json",
-        mock.ANY,
-    )
     subproc_mock: mock.AsyncMock = remote_image_builder._execute_subprocess  # type: ignore # noqa: E501
-    assert subproc_mock.await_count == 1
-    start_build_cmd = subproc_mock.await_args_list[0][0][0]
-    start_build_apolo_args = start_build_cmd[: start_build_cmd.index("--")]
-    start_build_job_arg = start_build_cmd[start_build_cmd.index("--") + 1 :][0]
-    start_build_kaniko_args = start_build_job_arg.split(" ")
-    assert start_build_apolo_args == [
-        "apolo",
-        "--disable-pypi-version-check",
-        "job",
-        "run",
-        "--life-span=4h",
-        "--schedule-timeout=20m",
-        "--project=myproject",
-        "--tag=kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4/.docker.config.json:/kaniko/.docker/config.json:ro",  # noqa: E501
-        "--volume=storage://mycluster/NO_ORG/myproject/context:/kaniko_context:rw",
-        "--env=container=docker",
-        "gcr.io/kaniko-project/executor:v1.20.0-debug",
+    assert subproc_mock.await_count == 0
+    job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
+    job_start_mock.assert_awaited_once()
+    kwargs = job_start_mock.await_args_list[0].kwargs
+    assert kwargs["volumes"] == [
+        apolo_sdk.Volume(
+            storage_uri=expected_storage_build_root / ".docker.config.json",
+            container_path="/kaniko/.docker/config.json",
+            read_only=True,
+        ),
+        apolo_sdk.Volume(
+            storage_uri=URL("storage://mycluster/NO_ORG/myproject/context"),
+            container_path="/kaniko_context",
+            read_only=False,
+        ),
     ]
-    assert start_build_kaniko_args == [
+    assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
         "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
