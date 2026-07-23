@@ -1,0 +1,1 @@
+Fixed `data transfer` reporting success when the platform-to-platform copy job failed. The copy job is now started via the SDK and its result is taken from the job status API instead of the exit code of the attached `apolo run` subprocess.
