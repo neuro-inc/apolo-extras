@@ -21,7 +21,6 @@ from yarl import URL
 from .common import _attach_job_stdout
 from .utils import get_default_preset
 
-
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
 KANIKO_IMAGE_TAG = "v1.20.0-debug"  # debug has busybox, which is needed for auth
 KANIKO_AUTH_PREFIX = "NE_REGISTRY_AUTH"
@@ -362,14 +361,16 @@ class RemoteImageBuilder(ImageBuilder):
             schedule_timeout=BUILDER_JOB_SHEDULE_TIMEOUT,
             project_name=project_name,
         )
-        logger.info(f"Started build job {job.id}")
+        job_id = job.id
+        logger.info(f"Started build job {job_id}")
         try:
             return await _attach_job_stdout(job, self._client, name="build")
         except asyncio.CancelledError:
-            logger.warning(
-                f"The build job {job.id} is still running. "
-                f"Use 'apolo job kill {job.id}' to cancel it"
-            )
+            try:
+                await asyncio.shield(self._client.jobs.kill(job_id))
+                logger.warning(f"The build job {job_id} was cancelled")
+            except Exception:
+                logger.warning(f"Failed to kill the build job {job_id}")
             raise
 
     async def _upload_to_storage(self, local_url: URL, remote_url: URL) -> None:
