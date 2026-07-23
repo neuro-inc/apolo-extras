@@ -5,8 +5,6 @@ from unittest import mock
 import apolo_sdk
 import pytest
 
-from apolo_extras.image_builder import ImageBuilder
-
 from ..sdk_mocks import MockedApoloConfig
 
 
@@ -20,9 +18,6 @@ async def _apolo_client() -> t.AsyncGenerator[apolo_sdk.Client, None]:
             mock.patch("apolo_sdk._storage.Storage.mkdir", mock.AsyncMock())
         )
         stack.enter_context(
-            mock.patch("apolo_sdk._storage.Storage.create", mock.AsyncMock())
-        )
-        stack.enter_context(
             mock.patch(
                 "apolo_sdk._jobs.Jobs.start",
                 mock.AsyncMock(return_value=mock.Mock(id="job-mocked-id")),
@@ -30,26 +25,12 @@ async def _apolo_client() -> t.AsyncGenerator[apolo_sdk.Client, None]:
         )
         stack.enter_context(
             mock.patch(
-                "apolo_extras.image_builder._attach_job_stdout",
+                "apolo_extras.data._attach_job_stdout",
                 mock.AsyncMock(return_value=0),
             )
         )
-        stack.enter_context(
-            mock.patch("apolo_extras.image._check_image_exists", return_value=False)
-        )
-        stack.enter_context(mock.patch("uuid.uuid4", return_value="mocked-uuid-4"))
         client = await apolo_sdk.get()
         try:
             yield await client.__aenter__()
         finally:
             await client.__aexit__()
-
-
-@pytest.fixture
-def remote_image_builder(_apolo_client: apolo_sdk.Client) -> ImageBuilder:
-    builder_class = ImageBuilder.get(local=False)
-    builder_class._execute_subprocess = mock.AsyncMock(  # type: ignore
-        side_effect=lambda x: 0
-    )
-
-    return builder_class(client=_apolo_client)

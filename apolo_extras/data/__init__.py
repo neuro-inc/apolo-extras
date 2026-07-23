@@ -3,16 +3,20 @@ import logging
 from pathlib import Path
 from typing import Optional, Sequence
 
+import apolo_sdk
 import click
 from yarl import URL
 
 from ..cli import main
-from ..common import APOLO_EXTRAS_IMAGE
+from ..common import APOLO_EXTRAS_IMAGE, _attach_job_stdout
+from ..const import EX_OK
 from ..image import _get_cluster_from_uri
 from ..utils import get_platform_client
 from .archive import ArchiveType
 from .operations import CopyOperation
 
+
+COPY_JOB_LIFESPAN = 10 * 24 * 60 * 60
 
 SUPPORTED_ARCHIVE_TYPES = list(ArchiveType.get_extension_mapping().keys())
 SUPPORTED_OBJECT_STORAGE_SCHEMES = {
@@ -193,30 +197,36 @@ async def _data_transfer(src_uri_str: str, dst_uri_str: str) -> None:
 
     async with get_platform_client(cluster=dst_cluster) as client:
         await client.storage.mkdir(URL("storage:"), parents=True, exist_ok=True)
-        await _run_copy_container(src_cluster, src_uri_str, dst_uri_str)
+        await _run_copy_container(client, src_cluster, src_uri_str, dst_uri_str)
 
 
 async def _run_copy_container(
-    src_cluster: str, src_uri_str: str, dst_uri_str: str
+    client: apolo_sdk.Client, src_cluster: str, src_uri_str: str, dst_uri_str: str
 ) -> None:
-    args = [
-        "apolo",
-        "run",
-        "-s",
-        "cpu-small",
-        "--pass-config",
-        "-v",
-        f"{dst_uri_str}:/storage:rw",
-        "-e",
-        f"APOLO_CLUSTER={src_cluster}",  # inside the job, switch apolo to 'src_cluster'
-        "--life-span 10d",
-        APOLO_EXTRAS_IMAGE,
-        "--",
-        f"apolo --show-traceback cp --progress -r -u -T {src_uri_str} /storage",
-    ]
-    cmd = " ".join(args)
-    click.echo(f"Running '{cmd}'")
-    subprocess = await asyncio.create_subprocess_shell(cmd)
-    returncode = await subprocess.wait()
-    if returncode != 0:
+    # the job is started detached and tracked via the API:
+    # the exit code of an attached `apolo run` is 0 after a detach
+    # or a dropped attach connection even if the copy job fails later
+    volumes = client.parse.volumes([f"{dst_uri_str}:/storage:rw"])
+    job = await client.jobs.start(
+        image=client.parse.remote_image(APOLO_EXTRAS_IMAGE),
+        preset_name="cpu-small",
+        command=f"apolo --show-traceback cp --progress -r -u -T {src_uri_str} /storage",
+        # inside the job, switch apolo to 'src_cluster'
+        env={"APOLO_CLUSTER": src_cluster},
+        volumes=volumes.volumes,
+        pass_config=True,
+        life_span=COPY_JOB_LIFESPAN,
+    )
+    job_id = job.id
+    logger.info(f"Started copy job {job_id}")
+    try:
+        exit_code = await _attach_job_stdout(job, client, name="copy")
+    except asyncio.CancelledError:
+        try:
+            await asyncio.shield(client.jobs.kill(job_id))
+            logger.warning(f"The copy job {job_id} was cancelled")
+        except Exception:
+            logger.warning(f"Failed to kill the copy job {job_id}")
+        raise
+    if exit_code != EX_OK:
         raise click.ClickException("Unable to copy storage")
