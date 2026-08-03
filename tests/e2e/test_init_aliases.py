@@ -5,7 +5,6 @@ import pytest
 
 from .conftest import CLIRunner
 
-
 root_logger = logging.getLogger()
 root_logger.setLevel(logging.INFO)
 

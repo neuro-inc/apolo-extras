@@ -3,9 +3,9 @@ import logging
 import random
 import re
 import sys
+from collections.abc import Iterable, Iterator
 from math import ceil
 from tempfile import TemporaryDirectory
-from typing import Iterable, Iterator, List, Optional
 
 import apolo_sdk
 import pytest
@@ -27,7 +27,6 @@ from .platform_to_cloud import generate_platform_to_cloud_copy_configs
 from .resources import CopyTestConfig
 from .utils import _run_command
 
-
 UUID4_PATTERN = r"[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}"
 DISK_ID_PATTERN = rf"disk-{UUID4_PATTERN}"
 DISK_ID_REGEX = re.compile(DISK_ID_PATTERN)
@@ -40,11 +39,11 @@ logger = logging.getLogger(__name__)
 def get_all_data_copy_configs(
     random_subset: bool = False,
     fraction: float = 0.05,
-) -> List[CopyTestConfig]:
+) -> list[CopyTestConfig]:
     random.seed(2)
-    configs: List[CopyTestConfig] = []
+    configs: list[CopyTestConfig] = []
 
-    def _add_configs(condition: bool, items: List[CopyTestConfig]) -> None:
+    def _add_configs(condition: bool, items: list[CopyTestConfig]) -> None:
         nonlocal configs
         if condition:
             if random_subset:
@@ -85,9 +84,7 @@ def get_all_data_copy_configs(
     return configs
 
 
-def archive_types_are_compatible(
-    source: Optional[str], destination: Optional[str]
-) -> bool:
+def archive_types_are_compatible(source: str | None, destination: str | None) -> bool:
     groups = [
         {".tar.gz", ".tgz"},
         {".tar.bz2", ".tbz", ".tbz2"},
@@ -218,7 +215,7 @@ def _run_data_copy_test_from_config(config: CopyTestConfig) -> None:
         return
     if should_succeed:
         should_exist_message = (
-            f"Destination {destination} " "should exist if copy succeeded"
+            f"Destination {destination} should exist if copy succeeded"
         )
         assert destination.exists(), should_exist_message
     both_archives = source.is_archive and destination.is_archive

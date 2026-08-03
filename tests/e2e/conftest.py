@@ -4,22 +4,13 @@ import os
 import re
 import subprocess
 import uuid
-from contextlib import contextmanager
+from collections.abc import AsyncIterator, Callable, Iterator
+from contextlib import AbstractContextManager, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CompletedProcess
 from tempfile import TemporaryDirectory
-from typing import (
-    AsyncIterator,
-    Callable,
-    ContextManager,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Protocol,
-    Union,
-)
+from typing import Protocol
 
 import apolo_sdk  # NOTE: don't use async test functions (issue #129)
 import pytest
@@ -28,7 +19,6 @@ from tenacity import retry, stop_after_attempt, stop_after_delay
 from apolo_extras.common import APOLO_EXTRAS_IMAGE
 from apolo_extras.config import _build_registy_auth
 from apolo_extras.image_builder import KANIKO_AUTH_PREFIX
-
 
 DISK_PREFIX = "<DISK_PREFIX>"
 TEMPDIR_PREFIX = "<TEMPDIR_PREFIX>"
@@ -45,7 +35,7 @@ TEST_DATA_COPY_LOCAL_TO_CLOUD = True
 TEST_DATA_COPY_CLOUD_TO_PLATFORM = True
 TEST_DATA_COPY_PLATFORM_TO_CLOUD = True
 
-CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
+CLOUD_SOURCE_PREFIXES: dict[str, str] = {
     # "gs": "gs://mlops-ci-e2e-tests/assets/data", # disabled, since we cannot easily test it via internal network   # noqa: E501
     "s3": "s3://apolo-extras-test-assets/assets/data",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/assets/data",  # noqa: E501
@@ -53,7 +43,7 @@ CLOUD_SOURCE_PREFIXES: Dict[str, str] = {
     "https": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
 }
 
-CLOUD_DESTINATION_PREFIXES: Dict[str, str] = {
+CLOUD_DESTINATION_PREFIXES: dict[str, str] = {
     # "gs": "gs://mlops-ci-e2e-tests/data_cp",
     "s3": "s3://apolo-extras-test-assets/assets/data_cp",
     # "azure+https": "azure+https://neuromlops.blob.core.windows.net/cookiecutter-e2e/data_cp",  # noqa: E501
@@ -61,7 +51,7 @@ CLOUD_DESTINATION_PREFIXES: Dict[str, str] = {
     "https": "https://apolo-extras-test-assets.s3.us-east-1.amazonaws.com/assets/data",
 }
 
-PLATFORM_SOURCE_PREFIXES: Dict[str, str] = {
+PLATFORM_SOURCE_PREFIXES: dict[str, str] = {
     # apolo mkdir -p storage:e2e/assets/data
     # apolo cp -rT tests/assets/data storage:e2e/assets/data
     "storage": "storage:e2e/assets/data",
@@ -70,7 +60,7 @@ PLATFORM_SOURCE_PREFIXES: Dict[str, str] = {
     "disk": f"disk:extras-e2e/assets/data",
 }
 
-PLATFORM_DESTINATION_PREFIXES: Dict[str, str] = {
+PLATFORM_DESTINATION_PREFIXES: dict[str, str] = {
     # apolo storage mkdir storage:e2e/data_cp
     "storage": "storage:e2e/data_cp",
     "disk": f"{DISK_PREFIX}/data_cp",
@@ -82,11 +72,11 @@ DST_CLUSTER_ENV_VAR = "APOLO_CLUSTER_SECONDARY"
 
 class CLIRunner(Protocol):
     def __call__(
-        self, args: List[str], enable_retry: bool = False
+        self, args: list[str], enable_retry: bool = False
     ) -> "CompletedProcess[str]": ...
 
 
-def get_tested_archive_types() -> List[str]:
+def get_tested_archive_types() -> list[str]:
     """Get tested archive types
 
     If PYTEST_DATA_COPY_ARCHIVE_TYPES is set,
@@ -128,7 +118,7 @@ def temp_random_secret(cli_runner: CLIRunner) -> Iterator[Secret]:
         cli_runner(["apolo", "secret", "rm", secret.name])
 
 
-def gen_random_file(location: Union[str, Path], name: Optional[str] = None) -> Path:
+def gen_random_file(location: str | Path, name: str | None = None) -> Path:
     location = Path(location)
     location.mkdir(parents=True, exist_ok=True)
     name = name or f"file-{uuid.uuid4().hex[:8]}.txt"
@@ -166,7 +156,7 @@ def current_user(_apolo_client: apolo_sdk.Client) -> str:
 @pytest.fixture
 def switch_cluster(
     _apolo_client: apolo_sdk.Client,
-) -> Callable[[str], ContextManager[None]]:
+) -> Callable[[str], AbstractContextManager[None]]:
     @contextmanager
     def _f(cluster: str) -> Iterator[None]:
         orig_cluster = _apolo_client.config.cluster_name
@@ -219,7 +209,7 @@ def project_dir() -> Iterator[Path]:
 
 
 @retry(stop=stop_after_attempt(3) | stop_after_delay(5 * 10))
-def run_cli(args: List[str]) -> "CompletedProcess[str]":
+def run_cli(args: list[str]) -> "CompletedProcess[str]":
     proc = subprocess.run(
         args,
         check=False,
@@ -240,7 +230,7 @@ def cli_runner(project_dir: Path) -> CLIRunner:
 
 
 @pytest.fixture
-def args_data_cp_from_cloud(cli_runner: CLIRunner) -> Callable[..., List[str]]:
+def args_data_cp_from_cloud(cli_runner: CLIRunner) -> Callable[..., list[str]]:
     def _f(
         bucket: str,
         src: str,
@@ -248,7 +238,7 @@ def args_data_cp_from_cloud(cli_runner: CLIRunner) -> Callable[..., List[str]]:
         extract: bool,
         compress: bool,
         use_temp_dir: bool,
-    ) -> List[str]:
+    ) -> list[str]:
         args = ["apolo-extras", "data", "cp", src, dst]
         if (
             src.startswith("storage:")

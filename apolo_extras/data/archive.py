@@ -6,7 +6,6 @@ import logging
 from ..utils import CLIRunner
 from .common import ArchiveType, Resource, ensure_folder_exists
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -191,8 +190,7 @@ async def compress(source: Resource, destination: Resource) -> Resource:
         same_type = source.archive_type == destination.archive_type
         if both_archives and same_type:
             logger.info(
-                "Skipping compression step - "
-                "source is already archive of the same type"
+                "Skipping compression step - source is already archive of the same type"
             )
             return await copy(source=source, destination=destination)
 

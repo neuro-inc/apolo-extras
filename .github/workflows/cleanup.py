@@ -3,10 +3,9 @@ import datetime as dt
 import logging
 import os
 import re
-from typing import Any, Dict
+from typing import Any
 
 import aiohttp
-
 
 LIST_CONTAINERS_URL = (
     "https://api.github.com/"
@@ -54,7 +53,7 @@ async def main() -> None:
         exit(0)
 
 
-def should_delete(img: Dict[str, Any]) -> bool:
+def should_delete(img: dict[str, Any]) -> bool:
     created_at = dt.datetime.strptime(img["created_at"], r"%Y-%m-%dT%H:%M:%SZ")
     verdict = (dt.datetime.now() - created_at) > STALE_PERIOD
 

@@ -3,7 +3,6 @@ import logging
 import re
 from pathlib import Path
 from time import sleep
-from typing import List, Optional
 
 from apolo_sdk import Client
 from yarl import URL
@@ -14,7 +13,6 @@ from apolo_extras.data.common import Resource
 from ..conftest import DISK_PREFIX, TEMPDIR_PREFIX
 from .utils import _run_command
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -23,8 +21,8 @@ class DataTestResource:
     schema: str
     url: str
     is_archive: bool
-    file_extension: Optional[str] = None
-    client: Optional[Client] = None
+    file_extension: str | None = None
+    client: Client | None = None
 
     def remove(self) -> None:
         """Remove the resource at self.url"""
@@ -211,11 +209,11 @@ class CopyTestConfig:
     extract_flag: bool = False
     compress_flag: bool = False
     # if set, force testcase to be expected to fail
-    should_fail: Optional[bool] = None
+    should_fail: bool | None = None
     # if should_fail is set - provide reason
-    fail_reason: Optional[str] = None
+    fail_reason: str | None = None
 
-    def as_command(self, minimized: bool = False) -> List[str]:
+    def as_command(self, minimized: bool = False) -> list[str]:
         if minimized:
             command = []
         else:
@@ -247,7 +245,7 @@ class CopyTestConfig:
     def __str__(self) -> str:
         return " ".join(self.as_command(minimized=True))
 
-    def get_extra_args(self) -> List[str]:
+    def get_extra_args(self) -> list[str]:
         schemas = (self.source.schema, self.destination.schema)
         if not (("storage" in schemas) or ("disk" in schemas)):
             return []

@@ -1,14 +1,13 @@
 from pathlib import Path
-from typing import List
 
 from ..conftest import get_tested_archive_types
 from .resources import TEMPDIR_PREFIX, CopyTestConfig, DataTestResource
 
 
-def generate_local_to_local_copy_configs() -> List[CopyTestConfig]:
+def generate_local_to_local_copy_configs() -> list[CopyTestConfig]:
     assets_root = (Path(__file__).parent.parent.parent / "assets" / "data").resolve()
     archive_types = get_tested_archive_types()
-    test_configs: List[CopyTestConfig] = []
+    test_configs: list[CopyTestConfig] = []
     plain_copy = [
         CopyTestConfig(
             source=DataTestResource(

@@ -1,4 +1,4 @@
-from typing import Dict, Iterator
+from collections.abc import Iterator
 
 import pytest
 from apolo_sdk import Client, Preset
@@ -6,10 +6,10 @@ from apolo_sdk import Client, Preset
 
 class MockApoloClient(Client):
     def __init__(self) -> None:
-        self._presets: Dict[str, Preset] = {}
+        self._presets: dict[str, Preset] = {}
 
     @property
-    def presets(self) -> Dict[str, Preset]:
+    def presets(self) -> dict[str, Preset]:
         return self._presets
 
 

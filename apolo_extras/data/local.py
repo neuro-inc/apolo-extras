@@ -6,11 +6,11 @@ Contains:
 - CloudToLocalCopier
 """
 
+import builtins
 import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Type
 
 from apolo_extras.data.fs import LocalFSCopier
 from apolo_extras.data.web import WebCopier
@@ -20,7 +20,6 @@ from .azure import AzureCopier
 from .common import Copier, DataUrlType, Resource, ensure_folder_exists
 from .gcs import GCSCopier
 from .s3 import S3Copier
-
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +53,7 @@ class BaseLocalCopier(Copier):
             DataUrlType.HTTPS: WebCopier,
             DataUrlType.LOCAL_FS: LocalFSCopier,
         }
-        cls: Type[Copier] = destination_copier_mapping[type]
+        cls: builtins.type[Copier] = destination_copier_mapping[type]
         return cls(source=source, destination=destination)
 
     def _can_skip_recompression(self) -> bool:

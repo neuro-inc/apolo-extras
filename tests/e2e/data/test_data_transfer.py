@@ -1,5 +1,6 @@
 import uuid
-from typing import Callable, ContextManager
+from collections.abc import Callable
+from contextlib import AbstractContextManager
 
 import pytest
 
@@ -11,7 +12,7 @@ from ..conftest import CLIRunner
 def test_data_transfer(
     cli_runner: CLIRunner,
     current_user: str,
-    switch_cluster: Callable[[str], ContextManager[None]],
+    switch_cluster: Callable[[str], AbstractContextManager[None]],
     src_cluster: str,
     dst_cluster: str,
 ) -> None:

@@ -3,7 +3,6 @@ from apolo_sdk import PluginManager
 from .main import main  # noqa
 from .version import __version__  # noqa
 
-
 APOLO_EXTRAS_UPGRADE = """\
 You are using apolo-extras tool {old_ver}, however {new_ver} is available.
 You should consider upgrading via the following command:

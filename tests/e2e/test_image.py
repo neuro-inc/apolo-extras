@@ -3,8 +3,9 @@ import os
 import sys
 import textwrap
 import uuid
+from collections.abc import Callable
+from contextlib import AbstractContextManager
 from pathlib import Path
-from typing import Callable, ContextManager
 
 import pytest
 from tenacity import retry, stop_after_attempt, wait_random_exponential
@@ -12,7 +13,6 @@ from tenacity import retry, stop_after_attempt, wait_random_exponential
 from apolo_extras.const import EX_PLATFORMERROR
 
 from .conftest import CLIRunner, Secret, gen_random_file
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ def test_ignored_files_are_not_copied(
 @retry(stop=stop_after_attempt(5), wait=wait_random_exponential(min=10, max=60))
 def test_image_transfer(
     cli_runner: CLIRunner,
-    switch_cluster: Callable[[str], ContextManager[None]],
+    switch_cluster: Callable[[str], AbstractContextManager[None]],
     current_user: str,
     dockerhub_auth_secret: Secret,
     src_cluster: str,

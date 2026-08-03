@@ -9,11 +9,10 @@ from enum import Flag, auto
 from functools import cached_property
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from apolo_sdk import Client
 from yarl import URL
-
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +35,7 @@ class ArchiveType(int, Flag):  # type: ignore
     UNSUPPORTED = ~(SUPPORTED)  # type:ignore
 
     @staticmethod
-    def get_extensions_for_type(type: "ArchiveType") -> List[str]:
+    def get_extensions_for_type(type: "ArchiveType") -> list[str]:
         """Get list of file extensions, that correspond
         to the provided archive type"""
         return [
@@ -46,7 +45,7 @@ class ArchiveType(int, Flag):  # type: ignore
         ]
 
     @staticmethod
-    def get_extension_mapping() -> Dict[str, "ArchiveType"]:
+    def get_extension_mapping() -> dict[str, "ArchiveType"]:
         """Get mapping from file extension to ArchiveType"""
         return {
             ".tar.gz": ArchiveType.TAR_GZ,
@@ -114,7 +113,7 @@ class DataUrlType(int, Flag):  # type: ignore
         return hash(int(self))
 
     @staticmethod
-    def get_scheme_mapping() -> Dict[str, "DataUrlType"]:
+    def get_scheme_mapping() -> dict[str, "DataUrlType"]:
         """Get supported mapping of url schema to UrlType"""
         return {
             "": DataUrlType.LOCAL_FS,
@@ -128,7 +127,7 @@ class DataUrlType(int, Flag):  # type: ignore
         }
 
     @staticmethod
-    def get_type(url: Union[str, URL]) -> "DataUrlType":
+    def get_type(url: str | URL) -> "DataUrlType":
         """Detect UrlType by checking url schema"""
         scheme_mapping = DataUrlType.get_scheme_mapping()
         if isinstance(url, URL):
@@ -161,7 +160,7 @@ class Resource:
     """Represents a resource, pointed to by a URL"""
 
     url: URL
-    _client: Optional[Client] = None  # only present for platform resources
+    _client: Client | None = None  # only present for platform resources
 
     @cached_property
     def data_copy_supported(self) -> bool:
@@ -182,7 +181,7 @@ class Resource:
         return result
 
     @cached_property
-    def filename(self) -> Optional[str]:
+    def filename(self) -> str | None:
         """Filename to which the url is pointing
 
         For local urls, this is obtained from os.path.split
@@ -234,7 +233,7 @@ class Resource:
         return result
 
     @cached_property
-    def disk_id_and_path(self) -> Tuple[str, Optional[str]]:
+    def disk_id_and_path(self) -> tuple[str, str | None]:
         """For disk resources - full id of the disk
         (disk://{cluster}[/org]/project/id) and the path on disk
 
@@ -284,7 +283,7 @@ class Resource:
         return Resource(URL(str(path)))
 
     @staticmethod
-    def from_str(url: str, *, _client: Optional[Client] = None) -> "Resource":
+    def from_str(url: str, *, _client: Client | None = None) -> "Resource":
         """Create a resource from the string url, without normalization"""
         return Resource(URL(url), _client=_client)
 
@@ -313,7 +312,7 @@ class Resource:
         return result
 
     @cached_property
-    def mode_flag(self) -> Optional[str]:
+    def mode_flag(self) -> str | None:
         """Get :ro or :rw flag from platform urls"""
         if self.data_url_type not in (DataUrlType.DISK, DataUrlType.STORAGE):
             logger.debug(f"{self.url} ({self.data_url_type=}) has no mode flag.")

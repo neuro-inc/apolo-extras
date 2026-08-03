@@ -1,5 +1,4 @@
 import uuid
-from typing import List
 
 from ..conftest import (
     CLOUD_DESTINATION_PREFIXES,
@@ -9,8 +8,8 @@ from ..conftest import (
 from .resources import CopyTestConfig, DataTestResource
 
 
-def generate_platform_to_cloud_copy_configs() -> List[CopyTestConfig]:
-    test_configs: List[CopyTestConfig] = []
+def generate_platform_to_cloud_copy_configs() -> list[CopyTestConfig]:
+    test_configs: list[CopyTestConfig] = []
     archive_types = get_tested_archive_types()
     run_uuid = uuid.uuid4().hex
     for source_schema, source_prefix in PLATFORM_SOURCE_PREFIXES.items():
