@@ -1,13 +1,12 @@
 import asyncio
 import logging
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import AsyncIterator, List, Optional
 
 import apolo_sdk
 from apolo_sdk import Client
-
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class CLIRunner:
     """Utility class for running shell commands"""
 
-    async def run_command(self, command: str, args: List[str]) -> None:
+    async def run_command(self, command: str, args: list[str]) -> None:
         """Execute command with args
 
         If resulting statuscode is non-zero, RuntimeError is thrown
@@ -33,10 +32,10 @@ class CLIRunner:
 
 @asynccontextmanager
 async def get_platform_client(
-    cluster: Optional[str] = None,
+    cluster: str | None = None,
 ) -> AsyncIterator[apolo_sdk.Client]:
     client: apolo_sdk.Client = await apolo_sdk.get()
-    cluster_orig: Optional[str] = None
+    cluster_orig: str | None = None
     try:
         await client.__aenter__()
 
@@ -73,8 +72,8 @@ async def get_platform_client(
 
 
 def select_job_preset(
-    preset: Optional[str], client: Client, min_cpu: float = 2, min_mem_mb: int = 4096
-) -> Optional[str]:
+    preset: str | None, client: Client, min_cpu: float = 2, min_mem_mb: int = 4096
+) -> str | None:
     """
     Try to automatically select the best available preset for a task.
     Memory is specified in mebibytes.

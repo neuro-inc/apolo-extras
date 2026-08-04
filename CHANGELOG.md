@@ -4,6 +4,26 @@
 
 [comment]: # (towncrier release notes start)
 
+apolo_extras 26.8.0 (2026-08-04)
+================================
+
+
+Features
+--------
+
+
+- Add Python 3.14, drop Python 3.10 support. ([#794](https://github.com/neuro-inc/apolo-extras/issues/794))
+
+
+Bugfixes
+--------
+
+
+- Fixed `image build` reporting success and exiting with code 0 when the builder job failed. The builder job is now started via the SDK and its result is taken from the job status API instead of the exit code of the attached `apolo job run` subprocess, which is 0 after a terminal detach or a dropped attach connection. ([#773](https://github.com/neuro-inc/apolo-extras/issues/773))
+
+- Fixed `data transfer` reporting success when the platform-to-platform copy job failed. The copy job is now started via the SDK and its result is taken from the job status API instead of the exit code of the attached `apolo run` subprocess. ([#774](https://github.com/neuro-inc/apolo-extras/issues/774))
+
+
 apolo-extras v25.9.0 (2025-09-05)
 =================================
 

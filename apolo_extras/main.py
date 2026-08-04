@@ -1,6 +1,7 @@
 import logging
+from collections.abc import MutableMapping
 from pathlib import Path
-from typing import Any, MutableMapping
+from typing import Any
 
 import toml
 
@@ -9,7 +10,6 @@ from .config import save_registry_auth  # noqa
 from .data import data_cp, data_transfer  # noqa
 from .image import image_build, image_transfer  # noqa
 from .k8s import generate_k8s_registry_secret, generate_k8s_secret  # noqa
-
 
 logger = logging.getLogger(__name__)
 

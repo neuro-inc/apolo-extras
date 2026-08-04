@@ -3,9 +3,9 @@ import logging
 import sys
 import tempfile
 import textwrap
+from collections.abc import Sequence
 from dataclasses import replace
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
 
 import apolo_sdk
 import click
@@ -21,7 +21,6 @@ from .image_builder import (
     create_docker_config_auth,
 )
 from .utils import get_platform_client, select_job_preset
-
 
 logger = logging.getLogger(__name__)
 
@@ -156,16 +155,16 @@ def image_build(
     path: str,
     image_uri: str,
     file: str,
-    build_arg: Tuple[str],
-    volume: Tuple[str],
-    env: Tuple[str],
+    build_arg: tuple[str],
+    volume: tuple[str],
+    env: tuple[str],
     preset: str,
     force_overwrite: bool,
     cache: bool,
     verbose: bool,
-    build_tag: Tuple[str],
-    project: Optional[str],
-    extra_kaniko_args: Optional[str],
+    build_tag: tuple[str],
+    project: str | None,
+    extra_kaniko_args: str | None,
 ) -> None:
     try:
         sys.exit(
@@ -241,10 +240,10 @@ def image_build_local(
     path: str,
     image_uri: str,
     file: str,
-    build_arg: Tuple[str],
+    build_arg: tuple[str],
     force_overwrite: bool,
     verbose: bool,
-    project: Optional[str],
+    project: str | None,
 ) -> None:
     try:
         sys.exit(
@@ -278,10 +277,10 @@ async def _parse_platform_image(image: str) -> apolo_sdk.RemoteImage:
 def _get_cluster_from_uri(
     client: apolo_sdk.Client,
     image_uri: str,
-    project_name: Optional[str] = None,
+    project_name: str | None = None,
     *,
     scheme: str,
-) -> Optional[str]:
+) -> str | None:
     try:
         uri = client.parse.str_to_uri(
             image_uri, project_name=project_name, allowed_schemes=[scheme]
@@ -297,10 +296,10 @@ async def _image_transfer(
     src_uri_str: str, dst_uri_str: str, force_overwrite: bool
 ) -> int:
     async with get_platform_client() as client:
-        src_cluster: Optional[str] = _get_cluster_from_uri(
+        src_cluster: str | None = _get_cluster_from_uri(
             client, src_uri_str, scheme="image"
         )
-        dst_cluster: Optional[str] = _get_cluster_from_uri(
+        dst_cluster: str | None = _get_cluster_from_uri(
             client, dst_uri_str, scheme="image"
         )
         if not dst_cluster:
@@ -345,17 +344,17 @@ async def _build_image(
     context: str,
     image_uri_str: str,
     use_cache: bool,
-    build_args: Tuple[str, ...],
-    volume: Tuple[str, ...],
-    env: Tuple[str, ...],
-    build_tags: Tuple[str, ...],
+    build_args: tuple[str, ...],
+    volume: tuple[str, ...],
+    env: tuple[str, ...],
+    build_tags: tuple[str, ...],
     force_overwrite: bool,
-    preset: Optional[str] = None,
+    preset: str | None = None,
     registry_auths: Sequence[DockerConfigAuth] = (),
     local: bool = False,
     verbose: bool = False,
-    project_name: Optional[str] = None,
-    extra_kaniko_args: Optional[str] = None,
+    project_name: str | None = None,
+    extra_kaniko_args: str | None = None,
 ) -> int:
     async with get_platform_client() as client:
         cluster = _get_cluster_from_uri(

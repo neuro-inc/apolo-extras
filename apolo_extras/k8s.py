@@ -2,7 +2,7 @@ import asyncio
 import base64
 import json
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import click
 import yaml
@@ -34,9 +34,9 @@ def generate_k8s_registry_secret(name: str) -> None:
     click.echo(yaml.dump(payload), nl=False)
 
 
-async def _create_k8s_secret(name: str) -> Dict[str, Any]:
+async def _create_k8s_secret(name: str) -> dict[str, Any]:
     async with get_platform_client() as client:
-        payload: Dict[str, Any] = {
+        payload: dict[str, Any] = {
             "apiVersion": "v1",
             "kind": "Secret",
             "metadata": {"name": name},
@@ -51,7 +51,7 @@ async def _create_k8s_secret(name: str) -> Dict[str, Any]:
         return payload
 
 
-async def _create_k8s_registry_secret(name: str) -> Dict[str, Any]:
+async def _create_k8s_registry_secret(name: str) -> dict[str, Any]:
     async with get_platform_client() as client:
         builder = ImageBuilder.get(local=False)(client)
         docker_config = await builder.create_docker_config()

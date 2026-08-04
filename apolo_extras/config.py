@@ -1,6 +1,5 @@
 import asyncio
 import json
-from typing import Optional
 
 import click
 
@@ -29,11 +28,11 @@ def config() -> None:
     ),
 )
 @click.argument("path")
-def save_registry_auth(path: str, cluster: Optional[str]) -> None:
+def save_registry_auth(path: str, cluster: str | None) -> None:
     asyncio.run(_save_registry_auth(path, cluster))
 
 
-async def _save_registry_auth(path: str, cluster: Optional[str]) -> None:
+async def _save_registry_auth(path: str, cluster: str | None) -> None:
     async with get_platform_client(cluster) as client:
         uri = client.parse.str_to_uri(
             path,

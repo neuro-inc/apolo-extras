@@ -1,6 +1,5 @@
 import logging
 import uuid
-from typing import List
 
 from ..conftest import (
     CLOUD_SOURCE_PREFIXES,
@@ -9,12 +8,11 @@ from ..conftest import (
 )
 from .resources import CopyTestConfig, DataTestResource
 
-
 logger = logging.getLogger(__name__)
 
 
-def generate_cloud_to_platform_copy_configs() -> List[CopyTestConfig]:
-    test_configs: List[CopyTestConfig] = []
+def generate_cloud_to_platform_copy_configs() -> list[CopyTestConfig]:
+    test_configs: list[CopyTestConfig] = []
     archive_types = get_tested_archive_types()
     run_uuid = uuid.uuid4().hex
     for schema, cloud_url in CLOUD_SOURCE_PREFIXES.items():

@@ -8,7 +8,6 @@ from pathlib import Path
 import pytest
 from deepdiff import DeepDiff
 
-
 TEST_ASSETS_ROOT = (Path(__file__).parent.parent / "assets").resolve()
 APOLO_EXTRAS_ROOT = Path(__file__).parent.parent.parent / "apolo_extras"
 LOGGER = logging.getLogger(__name__)
@@ -41,9 +40,9 @@ def test_auth_merge_script(tmp_path: Path) -> None:
     LOGGER.info(stdout)
     LOGGER.info(stderr)
     assert proc.returncode == 0, f"STDOUT: {stdout}\nSTDERR: {stderr}"
-    assert (
-        stderr.count("NE_REGISTRY") == 1
-    ), "Not only 'NE_REGISTRY_AUTH_INVALID' was asssumed invalid"
+    assert stderr.count("NE_REGISTRY") == 1, (
+        "Not only 'NE_REGISTRY_AUTH_INVALID' was asssumed invalid"
+    )
     expected = json.loads(merged.read_text())
     actual = json.loads(result_file.read_text())
     diff = DeepDiff(expected, actual, ignore_order=True)

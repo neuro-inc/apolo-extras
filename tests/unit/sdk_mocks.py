@@ -1,5 +1,4 @@
 import time
-import typing as t
 from decimal import Decimal
 
 import apolo_sdk
@@ -8,7 +7,7 @@ from jose import jwt
 from yarl import URL
 
 
-def _get_mock_presets() -> t.Dict[str, apolo_sdk.Preset]:
+def _get_mock_presets() -> dict[str, apolo_sdk.Preset]:
     return {
         "cpu-small": apolo_sdk.Preset(
             credits_per_hour=Decimal(1), cpu=1, memory=1 * 1024 * 1024
@@ -24,7 +23,7 @@ def _get_mock_presets() -> t.Dict[str, apolo_sdk.Preset]:
     }
 
 
-def _get_mock_clusters() -> t.Dict[str, apolo_sdk.Cluster]:
+def _get_mock_clusters() -> dict[str, apolo_sdk.Cluster]:
     return {
         "mycluster": apolo_sdk.Cluster(
             name="mycluster",
@@ -43,7 +42,7 @@ def _get_mock_clusters() -> t.Dict[str, apolo_sdk.Cluster]:
     }
 
 
-def _get_mock_projects() -> t.Dict[apolo_sdk.Project.Key, apolo_sdk.Project]:
+def _get_mock_projects() -> dict[apolo_sdk.Project.Key, apolo_sdk.Project]:
     return {
         apolo_sdk.Project.Key(
             cluster_name="mycluster", org_name="myorg", project_name="myproject"
@@ -70,10 +69,11 @@ def _load_mock_sdk_config() -> _ConfigData:
         ),
         url=URL("https://notexists/v1/api"),
         admin_url=URL("https://notexists/api/v1/admin"),
+        vcluster_url=URL("https://notexists/api/v1/vcluster"),
         version="1.0.0",
         project_name="myproject",
         cluster_name="mycluster",
-        org_name=None,
+        org_name="myorg",
         clusters=_get_mock_clusters(),
         projects=_get_mock_projects(),
     )

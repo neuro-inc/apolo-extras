@@ -6,7 +6,6 @@ Provides:
 
 import logging
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 from apolo_sdk import Client
 
@@ -14,7 +13,6 @@ from ..utils import provide_temp_dir
 from .common import Copier, DataUrlType, Resource
 from .local import CloudToLocalCopier, LocalToCloudCopier, LocalToLocalCopier
 from .remote import RemoteCopier
-
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +30,10 @@ class CopyOperation:
         compress: bool,
         extract: bool,
         client: Client,
-        volumes: Optional[List[str]] = None,
-        env: Optional[List[str]] = None,
-        life_span: Optional[float] = None,
-        preset: Optional[str] = None,
+        volumes: list[str] | None = None,
+        env: list[str] | None = None,
+        life_span: float | None = None,
+        preset: str | None = None,
     ) -> None:
         self.client = client
         self.source = Resource.parse(source, client=client)
@@ -77,8 +75,7 @@ class CopyOperation:
             )
         else:
             logger.debug(
-                f"Copy from {source_type.name} to "
-                f"{destination_type.name} is supported"
+                f"Copy from {source_type.name} to {destination_type.name} is supported"
             )
 
     async def run(self) -> None:
@@ -105,7 +102,7 @@ class CopyOperation:
             await copier.perform_copy()
 
     @staticmethod
-    def get_forbidden_combinations() -> List[Tuple[DataUrlType, DataUrlType]]:
+    def get_forbidden_combinations() -> list[tuple[DataUrlType, DataUrlType]]:
         """Get forbidden combinations of source and destination types"""
         return [
             (DataUrlType.CLOUD, DataUrlType.CLOUD),
@@ -126,10 +123,10 @@ def _get_copier(
     extract: bool,
     temp_dir: Path,
     client: Client,
-    volumes: Optional[List[str]] = None,
-    env: Optional[List[str]] = None,
-    preset: Optional[str] = None,
-    life_span: Optional[float] = None,
+    volumes: list[str] | None = None,
+    env: list[str] | None = None,
+    preset: str | None = None,
+    life_span: float | None = None,
 ) -> Copier:
     """Resolve an instance of Copier, which is able to copy
     from source to destination with provided params"""

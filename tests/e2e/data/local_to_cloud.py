@@ -1,13 +1,12 @@
 import os
 import uuid
 from pathlib import Path
-from typing import List
 
 from ..conftest import CLOUD_DESTINATION_PREFIXES, get_tested_archive_types
 from .resources import CopyTestConfig, DataTestResource
 
 
-def generate_local_to_cloud_copy_configs() -> List[CopyTestConfig]:
+def generate_local_to_cloud_copy_configs() -> list[CopyTestConfig]:
     """Generate test configs for local to cloud data copy
 
     This method is used to allow for selective test generation,
@@ -15,7 +14,7 @@ def generate_local_to_cloud_copy_configs() -> List[CopyTestConfig]:
     number of tests grows exponentially with the addition of new
     supported platforms
     """
-    test_configs: List[CopyTestConfig] = []
+    test_configs: list[CopyTestConfig] = []
 
     assets_root = (Path(__file__).parent.parent.parent / "assets" / "data").resolve()
     archive_types = get_tested_archive_types()

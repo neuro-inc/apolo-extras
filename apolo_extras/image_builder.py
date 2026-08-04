@@ -6,9 +6,10 @@ import re
 import shlex
 import uuid
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator, Sequence
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import Any, AsyncIterator, Dict, List, Optional, Sequence, Tuple, Type
+from typing import Any
 
 import apolo_sdk
 import click
@@ -20,7 +21,6 @@ from yarl import URL
 
 from .common import _attach_job_stdout
 from .utils import get_default_preset
-
 
 KANIKO_IMAGE_REF = "gcr.io/kaniko-project/executor"
 KANIKO_IMAGE_TAG = "v1.20.0-debug"  # debug has busybox, which is needed for auth
@@ -53,7 +53,7 @@ class DockerConfigAuth:
 class DockerConfig:
     auths: Sequence[DockerConfigAuth] = ()
 
-    def to_primitive(self) -> Dict[str, Any]:
+    def to_primitive(self) -> dict[str, Any]:
         return {
             "auths": {auth.registry: {"auth": auth.credentials} for auth in self.auths}
         }
@@ -127,18 +127,18 @@ class ImageBuilder(ABC):
         context_uri: URL,
         image: apolo_sdk.RemoteImage,
         use_cache: bool,
-        build_args: Tuple[str, ...],
-        volumes: Tuple[str, ...],
-        envs: Tuple[str, ...],
-        job_preset: Optional[str],
-        build_tags: Tuple[str, ...],
+        build_args: tuple[str, ...],
+        volumes: tuple[str, ...],
+        envs: tuple[str, ...],
+        job_preset: str | None,
+        build_tags: tuple[str, ...],
         project_name: str,
-        extra_kaniko_args: Optional[str],
+        extra_kaniko_args: str | None,
     ) -> int:
         pass
 
     @staticmethod
-    def get(local: bool) -> Type["ImageBuilder"]:
+    def get(local: bool) -> type["ImageBuilder"]:
         if local:
             return LocalImageBuilder
         else:
@@ -157,13 +157,13 @@ class LocalImageBuilder(ImageBuilder):
         context_uri: URL,
         image: apolo_sdk.RemoteImage,
         use_cache: bool,
-        build_args: Tuple[str, ...],
-        volumes: Tuple[str, ...],
-        envs: Tuple[str, ...],
-        job_preset: Optional[str],
-        build_tags: Tuple[str, ...],
+        build_args: tuple[str, ...],
+        volumes: tuple[str, ...],
+        envs: tuple[str, ...],
+        job_preset: str | None,
+        build_tags: tuple[str, ...],
         project_name: str,
-        extra_kaniko_args: Optional[str],
+        extra_kaniko_args: str | None,
     ) -> int:
         logger.info(f"Building the image {image}")
         logger.info(f"Using {context_uri} as the build context")
@@ -222,13 +222,13 @@ class RemoteImageBuilder(ImageBuilder):
         context_uri: URL,
         image: apolo_sdk.RemoteImage,
         use_cache: bool,
-        build_args: Tuple[str, ...],
-        volumes: Tuple[str, ...],
-        envs: Tuple[str, ...],
-        job_preset: Optional[str],
-        build_tags: Tuple[str, ...],
+        build_args: tuple[str, ...],
+        volumes: tuple[str, ...],
+        envs: tuple[str, ...],
+        job_preset: str | None,
+        build_tags: tuple[str, ...],
         project_name: str,
-        extra_kaniko_args: Optional[str],
+        extra_kaniko_args: str | None,
     ) -> int:
         # TODO: check if Dockerfile exists
         logger.info(f"Building the image {image}")
@@ -324,8 +324,8 @@ class RemoteImageBuilder(ImageBuilder):
             else:
                 envs += (extra_env,)
 
-        entrypoint: Optional[str] = None
-        command: Optional[str] = None
+        entrypoint: str | None = None
+        command: str | None = None
         kaniko_args_str = " ".join(kaniko_args)
         if job_entrypoint_overwrite:
             job_entrypoint_overwrite.append(kaniko_args_str)
@@ -389,8 +389,8 @@ class RemoteImageBuilder(ImageBuilder):
             raise click.ClickException("Uploading build context failed!")
 
     def _add_extra_kaniko_args(
-        self, kaniko_args: List[str], extra_kaniko_args: Optional[str]
-    ) -> List[str]:
+        self, kaniko_args: list[str], extra_kaniko_args: str | None
+    ) -> list[str]:
         if not extra_kaniko_args:
             return kaniko_args
 

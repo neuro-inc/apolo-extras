@@ -1,7 +1,7 @@
 import asyncio
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional, Sequence
 
 import apolo_sdk
 import click
@@ -14,7 +14,6 @@ from ..image import _get_cluster_from_uri
 from ..utils import get_platform_client
 from .archive import ArchiveType
 from .operations import CopyOperation
-
 
 COPY_JOB_LIFESPAN = 10 * 24 * 60 * 60
 
@@ -143,8 +142,8 @@ def data_cp(
     volume: Sequence[str],
     env: Sequence[str],
     use_temp_dir: bool,
-    preset: Optional[str] = None,
-    life_span: Optional[int] = None,
+    preset: str | None = None,
+    life_span: int | None = None,
 ) -> None:
     if use_temp_dir:
         logger.warn(

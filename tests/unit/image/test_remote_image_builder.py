@@ -8,7 +8,6 @@ from yarl import URL
 from apolo_extras.image import _build_image
 from apolo_extras.image_builder import ImageBuilder
 
-
 KANIKO_IMAGE = "gcr.io/kaniko-project/executor:v1.20.0-debug"
 
 
@@ -30,7 +29,7 @@ async def test_image_builder__min_parameters(
     )
 
     expected_storage_build_root = URL(
-        "storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4"
+        "storage://mycluster/myorg/myproject/.builds/mocked-uuid-4"
     )
     storage_mkdir_mock: mock.AsyncMock = remote_image_builder._client.storage.mkdir  # type: ignore # noqa: E501
     storage_mkdir_mock.assert_awaited()
@@ -76,7 +75,7 @@ async def test_image_builder__min_parameters(
     assert kwargs["secret_files"] == []
     assert kwargs["disk_volumes"] == []
     assert kwargs["tags"] == (
-        "kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+        "kaniko-builds-image:image://mycluster/myorg/myproject/targetimage:latest",
     )
     assert kwargs["life_span"] == 4 * 60 * 60
     assert kwargs["schedule_timeout"] == 20 * 60
@@ -84,9 +83,9 @@ async def test_image_builder__min_parameters(
     assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
-        "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
+        "--destination=registry.mycluster.noexists/myorg/myproject/targetimage:latest",
         "--cache=true",
-        "--cache-repo=registry.mycluster.noexists/NO_ORG/myproject/layer-cache/cache",
+        "--cache-repo=registry.mycluster.noexists/myorg/myproject/layer-cache/cache",
         "--verbosity=info",
         "--image-fs-extract-retry=1",
         "--push-retry=3",
@@ -119,7 +118,7 @@ async def test_image_builder__full_parameters(
     )
 
     expected_storage_build_root = URL(
-        "storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4"
+        "storage://mycluster/myorg/myproject/.builds/mocked-uuid-4"
     )
     job_start_mock: mock.AsyncMock = remote_image_builder._client.jobs.start  # type: ignore # noqa: E501
     job_start_mock.assert_awaited_once()
@@ -131,12 +130,12 @@ async def test_image_builder__full_parameters(
     assert kwargs["secret_env"] == {}
     assert kwargs["volumes"] == [
         apolo_sdk.Volume(
-            storage_uri=URL("storage://mycluster/NO_ORG/myproject/somevol"),
+            storage_uri=URL("storage://mycluster/myorg/myproject/somevol"),
             container_path="/mnt/vol1",
             read_only=False,
         ),
         apolo_sdk.Volume(
-            storage_uri=URL("storage://mycluster/NO_ORG/someproject2/somevol2"),
+            storage_uri=URL("storage://mycluster/myorg/someproject2/somevol2"),
             container_path="/mnt/vol2",
             read_only=False,
         ),
@@ -154,14 +153,14 @@ async def test_image_builder__full_parameters(
     assert kwargs["tags"] == (
         "tag1",
         "tag2",
-        "kaniko-builds-image:image://mycluster/NO_ORG/myproject/targetimage:latest",
+        "kaniko-builds-image:image://mycluster/myorg/myproject/targetimage:latest",
     )
     assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
-        "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
+        "--destination=registry.mycluster.noexists/myorg/myproject/targetimage:latest",
         "--cache=true",
-        "--cache-repo=registry.mycluster.noexists/NO_ORG/myproject/layer-cache/cache",
+        "--cache-repo=registry.mycluster.noexists/myorg/myproject/layer-cache/cache",
         "--verbosity=info",
         "--image-fs-extract-retry=1",
         "--push-retry=3",
@@ -225,7 +224,7 @@ async def test_image_builder__custom_project(
     )
 
     expected_storage_build_root = URL(
-        "storage://mycluster/NO_ORG/otherproject/.builds/mocked-uuid-4"
+        "storage://mycluster/myorg/otherproject/.builds/mocked-uuid-4"
     )
     storage_mkdir_mock: mock.AsyncMock = remote_image_builder._client.storage.mkdir  # type: ignore # noqa: E501
     storage_mkdir_mock.assert_awaited_once_with(
@@ -236,7 +235,7 @@ async def test_image_builder__custom_project(
     kwargs = job_start_mock.await_args_list[0].kwargs
     assert kwargs["project_name"] == "otherproject"
     assert kwargs["tags"] == (
-        "kaniko-builds-image:image://mycluster/NO_ORG/otherproject/targetimage:latest",
+        "kaniko-builds-image:image://mycluster/myorg/otherproject/targetimage:latest",
     )
     assert kwargs["volumes"] == [
         apolo_sdk.Volume(
@@ -253,9 +252,9 @@ async def test_image_builder__custom_project(
     assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
-        "--destination=registry.mycluster.noexists/NO_ORG/otherproject/targetimage:latest",  # noqa: E501
+        "--destination=registry.mycluster.noexists/myorg/otherproject/targetimage:latest",  # noqa: E501
         "--cache=true",
-        "--cache-repo=registry.mycluster.noexists/NO_ORG/otherproject/layer-cache/cache",  # noqa: E501
+        "--cache-repo=registry.mycluster.noexists/myorg/otherproject/layer-cache/cache",  # noqa: E501
         "--verbosity=info",
         "--image-fs-extract-retry=1",
         "--push-retry=3",
@@ -281,7 +280,7 @@ async def test_image_builder__storage_context(
     )
 
     expected_storage_build_root = URL(
-        "storage://mycluster/NO_ORG/myproject/.builds/mocked-uuid-4"
+        "storage://mycluster/myorg/myproject/.builds/mocked-uuid-4"
     )
     subproc_mock: mock.AsyncMock = remote_image_builder._execute_subprocess  # type: ignore # noqa: E501
     assert subproc_mock.await_count == 0
@@ -295,7 +294,7 @@ async def test_image_builder__storage_context(
             read_only=True,
         ),
         apolo_sdk.Volume(
-            storage_uri=URL("storage://mycluster/NO_ORG/myproject/context"),
+            storage_uri=URL("storage://mycluster/myorg/myproject/context"),
             container_path="/kaniko_context",
             read_only=False,
         ),
@@ -303,9 +302,9 @@ async def test_image_builder__storage_context(
     assert kwargs["command"].split(" ") == [
         "--context=/kaniko_context",
         "--dockerfile=/kaniko_context/path/to/Dockerfile",
-        "--destination=registry.mycluster.noexists/NO_ORG/myproject/targetimage:latest",
+        "--destination=registry.mycluster.noexists/myorg/myproject/targetimage:latest",
         "--cache=true",
-        "--cache-repo=registry.mycluster.noexists/NO_ORG/myproject/layer-cache/cache",
+        "--cache-repo=registry.mycluster.noexists/myorg/myproject/layer-cache/cache",
         "--verbosity=info",
         "--image-fs-extract-retry=1",
         "--push-retry=3",

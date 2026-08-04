@@ -1,8 +1,8 @@
 """Module for copying files by running neu.ro jobs"""
 
 import logging
+from collections.abc import Mapping
 from dataclasses import dataclass, replace
-from typing import List, Mapping, Optional, Tuple
 
 from apolo_cli.utils import resolve_disk
 from apolo_sdk import Client, DiskVolume, RemoteImage, SecretFile, Volume
@@ -11,7 +11,6 @@ from yarl import URL
 from ..common import APOLO_EXTRAS_IMAGE, EX_OK, _attach_job_stdout
 from ..utils import get_default_preset, select_job_preset
 from .common import Copier, DataUrlType, Resource
-
 
 logger = logging.getLogger(__name__)
 
@@ -22,13 +21,13 @@ class RemoteJobConfig:
 
     image: RemoteImage
     command: str
-    env: Optional[Mapping[str, str]]
-    secret_env: Optional[Mapping[str, URL]]
-    volumes: List[Volume]
-    secret_files: List[SecretFile]
-    disk_volumes: List[DiskVolume]
+    env: Mapping[str, str] | None
+    secret_env: Mapping[str, URL] | None
+    volumes: list[Volume]
+    secret_files: list[SecretFile]
+    disk_volumes: list[DiskVolume]
     preset_name: str
-    life_span: Optional[float]
+    life_span: float | None
     pass_config: bool
 
     @staticmethod
@@ -38,10 +37,10 @@ class RemoteJobConfig:
         apolo_client: Client,
         compress: bool = False,
         extract: bool = False,
-        volumes: Optional[List[str]] = None,
-        env: Optional[List[str]] = None,
-        preset: Optional[str] = None,
-        life_span: Optional[float] = None,
+        volumes: list[str] | None = None,
+        env: list[str] | None = None,
+        preset: str | None = None,
+        life_span: float | None = None,
     ) -> "RemoteJobConfig":
         """Create `RemoteJobConfig` for a neu.ro copy job.
 
@@ -92,10 +91,10 @@ class RemoteCopier(Copier):
         client: Client,
         compress: bool = False,
         extract: bool = False,
-        volumes: Optional[List[str]] = None,
-        env: Optional[List[str]] = None,
-        preset: Optional[str] = None,
-        life_span: Optional[float] = None,
+        volumes: list[str] | None = None,
+        env: list[str] | None = None,
+        preset: str | None = None,
+        life_span: float | None = None,
     ) -> None:
         super().__init__(source, destination)
         self.apolo_client = client
@@ -162,7 +161,7 @@ def _map_into_volumes(
     destination_storage_mount_prefix: str = "/var/storage/destination",
     source_disk_mount_prefix: str = "/var/disk/source",
     destination_disk_mount_prefix: str = "/var/disk/destination",
-) -> Tuple[str, str, List[str]]:
+) -> tuple[str, str, list[str]]:
     """Map urls for platform storage into volume mounts.
 
     Returns (patched_source: str, patched_destination: str, volumes: List[str]),
@@ -192,7 +191,7 @@ def _map_resource_into_volume(
     disk_mount_prefix: str,
     mount_files: bool = False,
     mount_mode: str = "rw",
-) -> Tuple[str, List[str]]:
+) -> tuple[str, list[str]]:
     """Map storage or disk resource into volume specification string
     and patch such url into a local path inside a container.
 

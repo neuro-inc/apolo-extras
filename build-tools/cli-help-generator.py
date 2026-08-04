@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from textwrap import dedent
-from typing import Any, List
+from typing import Any
 
 import click
 
@@ -25,9 +25,9 @@ class CommandInfo:
     usage: str = None
     short: str = None
     description: str = None
-    options: List[Option] = field(default_factory=list)
+    options: list[Option] = field(default_factory=list)
     examples: str = None
-    children: List[Any] = field(default_factory=list)  # CommandInfo
+    children: list[Any] = field(default_factory=list)  # CommandInfo
     is_group: bool = False
 
 

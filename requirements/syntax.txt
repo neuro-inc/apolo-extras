@@ -1,4 +1,5 @@
 -r base.txt
+-r build.txt
 mypy==2.3.0
 pre-commit==4.6.1
 # mypy stubs and typesheds (https://mypy.readthedocs.io/en/latest/getting_started.html#library-stubs-and-typeshed)

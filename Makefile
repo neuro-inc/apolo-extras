@@ -1,15 +1,29 @@
 COLOR ?= auto
 PYTEST_FLAGS ?= -v
 PYTEST_PARALLEL ?= auto # overwritten in CI
+PYTHON ?= python
+PACKAGE_NAME := apolo-extras
+PACKAGE_VERSION = $(shell $(PYTHON) apolo_extras/version.py)
 
-.PHONY: setup
-setup:
-	pip install -r requirements/test.txt
+.PHONY: setup setup-ci setup-build
+setup: setup-ci
 	pre-commit install
+
+setup-ci:
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements/test.txt
+
+setup-build:
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -r requirements/build.txt
+
+.PHONY: build
+build:
+	$(PYTHON) -m build
 
 .PHONY: lint
 lint: format
-	mypy apolo_extras tests setup.py
+	mypy apolo_extras tests
 
 .PHONY: format
 format:
@@ -79,11 +93,11 @@ test_unit:
 
 .PHONY: changelog-draft
 changelog-draft:
-	towncrier --draft --name `python setup.py --name` --version v`python setup.py --version`
+	towncrier --draft --name $(PACKAGE_NAME) --version v$(PACKAGE_VERSION)
 
 .PHONY: changelog
 changelog:
-	towncrier --name `python setup.py --name` --version v`python setup.py --version`
+	towncrier --name $(PACKAGE_NAME) --version v$(PACKAGE_VERSION)
 
 .PHONY: docs
 docs:

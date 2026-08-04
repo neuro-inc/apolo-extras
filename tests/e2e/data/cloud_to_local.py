@@ -1,15 +1,13 @@
 import logging
-from typing import List
 
 from ..conftest import CLOUD_SOURCE_PREFIXES, get_tested_archive_types
 from .resources import TEMPDIR_PREFIX, CopyTestConfig, DataTestResource
 
-
 logger = logging.getLogger(__name__)
 
 
-def generate_cloud_to_local_copy_configs() -> List[CopyTestConfig]:
-    test_configs: List[CopyTestConfig] = []
+def generate_cloud_to_local_copy_configs() -> list[CopyTestConfig]:
+    test_configs: list[CopyTestConfig] = []
     archive_types = get_tested_archive_types()
 
     for schema, cloud_url in CLOUD_SOURCE_PREFIXES.items():
