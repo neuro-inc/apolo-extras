@@ -67,7 +67,7 @@ repos:
   hooks:
   - id: check-github-actions
 ci:
-  # pre-commit ci do not install dependencies from setup.py
+  # pre-commit.ci does not install the project dependencies
   skip:
   - gen-cli-docs
   - actionlint-docker
