@@ -1,4 +1,4 @@
-FROM python:3.14.8-alpine3.23
+FROM python:3.15.0-alpine3.23
 
 LABEL org.opencontainers.image.source="https://github.com/neuro-inc/apolo-extras"
 
