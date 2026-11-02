@@ -34,7 +34,6 @@ repos:
   - id: check-added-large-files
   - id: end-of-file-fixer
     exclude: "^docs/"
-  - id: requirements-txt-fixer
   - id: trailing-whitespace
   - id: check-symlinks
 # Another entry is required to apply file-contents-sorter to another file

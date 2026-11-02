@@ -39,12 +39,18 @@ RUN RCLONE_ARCHIVE="rclone-current-linux-amd64.zip" && \
 
 # package version is to be overloaded with exact version
 ARG APOLO_EXTRAS_PACKAGE=apolo-extras
+ARG POETRY_VERSION=2.5.1
 
 ENV PATH=/root/.local/bin:$PATH
 
 RUN python -m pip install --no-cache-dir --upgrade pip pipx
+COPY pyproject.toml poetry.lock /opt/apolo-extras/
+RUN pipx install "poetry==$POETRY_VERSION" && \
+    MULTIDICT_NO_EXTENSIONS=1 YARL_NO_EXTENSIONS=1 POETRY_VIRTUALENVS_CREATE=false \
+    poetry -C /opt/apolo-extras install --only main --no-interaction && \
+    pipx uninstall poetry
 RUN MULTIDICT_NO_EXTENSIONS=1 YARL_NO_EXTENSIONS=1 python -m pip install \
-    --no-cache-dir --user "$APOLO_EXTRAS_PACKAGE" && \
+    --no-cache-dir --no-deps --user "$APOLO_EXTRAS_PACKAGE" && \
     # isolated env since it has conflicts with apolo-cli
     pipx install awscli
 RUN apolo-extras init-aliases
