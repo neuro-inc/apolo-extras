@@ -1,6 +1,0 @@
-apolo-cli>=26.7.1
-apolo-sdk>=26.10.0
-click==8.5.0
-pyyaml==6.0.3
-setuptools==84.2.1
-toml==0.10.2

@@ -18,12 +18,51 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "apolo-cli>=26.7.1",
+    "apolo-cli>=26.10.0",
+    "apolo-sdk>=26.10.0",
     "click>=8.4",
     "pyyaml>=6.0",
     "toml>=0.10.0",
 ]
 dynamic = ["version"]
+
+[tool.poetry]
+requires-poetry = ">=2.4.1"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+
+[tool.poetry.group.build]
+optional = true
+
+[tool.poetry.group.build.dependencies]
+build = "1.6.1"
+setuptools = "84.2.1"
+wheel = ">=0.45"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+mypy = "2.4.1"
+pre-commit = "4.7.0"
+types-PyYAML = "6.0.12.20260906"
+types-toml = "0.10.8.20260518"
+deepdiff = "9.1.0"
+pytest = "9.1.1"
+pytest-asyncio = "1.4.1"
+pytest-clarity = "1.0.1"
+pytest-xdist = "3.8.0"
+tenacity = "9.2.1"
+towncrier = "26.9.0"
+typing-extensions = "4.16.0"
+
+[tool.poetry.group.cleanup]
+optional = true
+
+[tool.poetry.group.cleanup.dependencies]
+aiohttp = "3.14.5"
 
 [project.urls]
 Homepage = "https://github.com/neuro-inc/apolo-extras"

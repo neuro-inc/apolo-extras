@@ -1,12 +1,47 @@
 name: CD
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [master]
 
 jobs:
+  prepare:
+    name: Validate release notes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - name: Checkout commit and tags
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+      - name: Check version and changelog
+        id: version
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if git diff --quiet "$BEFORE" "$GITHUB_SHA" -- apolo_extras/version.py; then
+            echo "Version unchanged; skipping release"
+            exit 0
+          fi
+          VERSION=$(python apolo_extras/version.py)
+          if git show-ref --verify --quiet "refs/tags/v$VERSION"; then
+            echo "Version v$VERSION is already tagged; skipping release"
+            exit 0
+          fi
+          make check-changelog
+          echo "release=true" >> "$GITHUB_OUTPUT"
+
   pypi_deploy:
     name: Release package
+    needs: prepare
+    if: needs.prepare.outputs.release == 'true'
     runs-on: ubuntu-latest
     environment:
       name: pypi
@@ -20,36 +55,29 @@ jobs:
       - name: Checkout commit
         uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version-file: .python-version
-          cache: pip
-          cache-dependency-path: requirements/build.txt
+        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.8.0
       - name: Install build dependencies
         run: make setup-build
-      - name: Sanity check for tag and version
+      - name: Read package version
         id: version
         shell: bash
         run: |
           VERSION=$(python apolo_extras/version.py)
-          if [ "${{ github.ref }}" != "refs/tags/v$VERSION" ]
-          then
-            echo "Git tag '${{ github.ref }}' differs from package version 'v$VERSION'"
-            exit 1
-          fi
-          echo "OK, git tag matches package version: 'v$VERSION'"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Make dists
         run: make build
       - name: PyPI upload
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          # Allow retrying after a later image or GitHub release step fails.
+          skip-existing: true
 
   image_deploy:
     name: Release image if needed
     runs-on: ubuntu-latest
     needs: [pypi_deploy]
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Checkout commit
@@ -105,3 +133,15 @@ jobs:
               echo "Waiting for the GHCR image $IMAGE:$TAG ..."
               sleep 1
           done
+      - name: Create GitHub release and tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.pypi_deploy.outputs.version }}
+        run: |
+          FLAGS=()
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            FLAGS+=(--prerelease --latest=false)
+          fi
+          gh release create "v$VERSION" --target "$GITHUB_SHA" \
+            --title "apolo-extras v$VERSION" \
+            --generate-notes "${FLAGS[@]}"
