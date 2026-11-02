@@ -18,7 +18,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "apolo-cli>=26.7.1",
+    "apolo-cli>=26.10.0",
     "apolo-sdk>=26.10.0",
     "click>=8.4",
     "pyyaml>=6.0",
