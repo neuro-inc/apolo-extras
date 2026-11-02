@@ -30,13 +30,6 @@ RUN RCLONE_ARCHIVE="rclone-current-linux-amd64.zip" && \
     rm -rf rclone-*-linux-amd64 && \
     chmod 755 /usr/bin/rclone
 
-# Install kubectl
-# y.s. (23.08.2025) we seem to not need it anymore, drop later if confirmed
-# RUN cd /usr/local/bin && \
-#     wget https://dl.k8s.io/release/v1.33.4/bin/linux/amd64/kubectl && \
-#     chmod +x ./kubectl && \
-#     kubectl version --client
-
 # package version is to be overloaded with exact version
 ARG APOLO_EXTRAS_PACKAGE=apolo-extras
 ARG POETRY_VERSION=2.5.1
