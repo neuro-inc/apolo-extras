@@ -55,7 +55,7 @@ jobs:
       - name: Checkout commit
         uses: actions/checkout@v7
       - name: Setup Python
-        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.8.0
+        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.10.0
       - name: Install build dependencies
         run: make setup-build
       - name: Read package version

@@ -18,7 +18,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Python
-        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.8.0
+        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.10.0
         with:
           python-version-file: .python-version
 
@@ -61,7 +61,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Python
-        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.8.0
+        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.10.0
         with:
           python-version-file: .python-version
 
@@ -150,7 +150,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Setup Python
-        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.8.0
+        uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.10.0
         with:
           python-version: ${{ matrix.python-version }}
 
