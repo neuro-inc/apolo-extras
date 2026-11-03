@@ -4,6 +4,16 @@
 
 [comment]: # (towncrier release notes start)
 
+apolo-extras v26.11.1 (2026-11-03)
+==================================
+
+
+## Features
+
+- Add 3.15, drop 3.10 and 3.11 Python support [#856](https://github.com/neuro-inc/apolo-extras/pull/856)
+
+
+
 apolo-extras v26.11.0 (2026-11-02)
 ==================================
 

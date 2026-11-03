@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 import pytest
-from deepdiff import DeepDiff
 
 TEST_ASSETS_ROOT = (Path(__file__).parent.parent / "assets").resolve()
 APOLO_EXTRAS_ROOT = Path(__file__).parent.parent.parent / "apolo_extras"
@@ -45,6 +44,4 @@ def test_auth_merge_script(tmp_path: Path) -> None:
     )
     expected = json.loads(merged.read_text())
     actual = json.loads(result_file.read_text())
-    diff = DeepDiff(expected, actual, ignore_order=True)
-
-    assert diff == {}, diff
+    assert actual == expected
