@@ -47,7 +47,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 mypy = "2.4.1"
 pre-commit = "4.7.0"
-types-PyYAML = "6.0.12.20260906"
+types-PyYAML = "6.0.12.20261030"
 types-toml = "0.10.8.20260518"
 deepdiff = "9.1.0"
 pytest = "9.1.1"
