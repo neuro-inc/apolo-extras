@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v7
 
     - name: Setup Python
-      uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.10.0
+      uses: neuro-inc/reuse/.github/actions/setup-python-poetry@v26.11.0
       with:
         python-version-file: .python-version
 
