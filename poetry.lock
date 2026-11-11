@@ -336,14 +336,14 @@ wcwidth = ">=0.1.7"
 
 [[package]]
 name = "apolo-sdk"
-version = "26.11.1"
+version = "26.11.2"
 description = "Apolo SDK"
 optional = false
 python-versions = ">=3.12.0"
 groups = ["main"]
 files = [
-    {file = "apolo_sdk-26.11.1-py3-none-any.whl", hash = "sha256:363470b9c0f756bde027b053b16d17d1c122760aa7b7148c09b5c90836078c7b"},
-    {file = "apolo_sdk-26.11.1.tar.gz", hash = "sha256:e905b8d560c86449c005a0edc61374c49406f3af0ea99e1543336befdec49a58"},
+    {file = "apolo_sdk-26.11.2-py3-none-any.whl", hash = "sha256:3c35077337454e750d24f044fed4105abe0a412dc9f993ed35f2c70412eaadf5"},
+    {file = "apolo_sdk-26.11.2.tar.gz", hash = "sha256:822cd785f270687549cc508222f8be2329e27a6bd4bc9a3e40c226ca2156960d"},
 ]
 
 [package.dependencies]
@@ -3460,4 +3460,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12,<4.0"
-content-hash = "7c058300cc1dc69abd22b0ca79996529cafccc40fbfa8e4d31e39e9f0f2f5d90"
+content-hash = "c0a869843d3d7358fbf53934d1f61838047be576391344f654dec2aee3505135"
