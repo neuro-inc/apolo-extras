@@ -21,7 +21,7 @@ dependencies = [
     "apolo-cli>=26.11.2",
     "apolo-sdk>=26.11.2",
     "click>=8.5.1",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.4",
     "toml>=0.10.0",
 ]
 dynamic = ["version"]
